@@ -259,7 +259,7 @@ const styles = `
 
 /* ─────────────────────────────────────────── helpers ── */
 async function callClaude(sys, msg, maxTokens = 1200) {
-  const resp = await fetch("/api/claude", {
+  const resp = await fetch("/.netlify/functions/claude", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
