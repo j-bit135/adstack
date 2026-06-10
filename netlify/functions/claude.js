@@ -1,4 +1,7 @@
 exports.handler = async function(event) {
+  console.log('Function called, method:', event.httpMethod);
+  console.log('Body received:', event.body);
+  
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -11,6 +14,8 @@ exports.handler = async function(event) {
     };
   }
 
+  console.log('API Key exists:', !!process.env.ANTHROPIC_API_KEY);
+
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -22,9 +27,11 @@ exports.handler = async function(event) {
   });
 
   const data = await response.json();
+  console.log('Anthropic status:', response.status);
+  console.log('Anthropic response:', JSON.stringify(data));
 
   return {
-    statusCode: response.status,
+    statusCode: 200,
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Content-Type': 'application/json'
