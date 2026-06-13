@@ -29,7 +29,6 @@ const TOOL_META = {
 const PAGE_META = {
   blog:        { path:"/blog",        title:"Paid Media Blog — Insights & Guides | ADSTACK",       desc:"Practical paid media guides, Google Ads strategy, GA4 tutorials and adtech insights for digital marketing professionals." },
   advertising: { path:"/advertising", title:"Advertise on ADSTACK — Reach Paid Media Professionals",desc:"Advertise to digital marketers, PPC managers and agency teams. Premium ad placements on ADSTACK." },
-  subscribe:   { path:"/subscribe",   title:"Subscribe to the ADSTACK Monthly Newsletter",           desc:"Weekly paid media hints, tips and strategy straight to your inbox. Free forever." },
   privacy:     { path:"/privacy",     title:"Privacy Policy | ADSTACK",                               desc:"ADSTACK privacy policy. How we collect, use and protect your data." },
   about:       { path:"/about",       title:"About ADSTACK — Built by Digital Marketing Practitioners",desc:"ADSTACK is a free AI-powered toolkit built by digital media professionals for paid media managers and PPC specialists." },
 };
@@ -1305,39 +1304,6 @@ function AdStackAboutPage({ onBack }) {
   );
 }
 
-function AdStackSubscribePage({ onBack }) {
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  return (
-    <div>
-      <div style={{marginBottom:28}}>
-        <div style={{fontSize:11,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".1em",marginBottom:8,textTransform:"uppercase"}}>Subscribe</div>
-        <h1 style={{fontSize:26,fontWeight:600,color:"#e8e8e0",marginBottom:12,lineHeight:1.3}}>Stay sharp every week</h1>
-        <p style={{fontSize:15,color:"#666",lineHeight:1.8}}>We send out a monthly email packed with paid media hints, tips, and practical advice — from campaign structure best practices to GA4 deep dives, keyword strategy, and the latest in adtech. No fluff, no filler. Just useful stuff you can apply straight away.</p>
-      </div>
-      {!submitted ? (
-        <div className="card" style={{maxWidth:480}}>
-          <div style={{fontSize:13,color:"#888",marginBottom:20,lineHeight:1.7}}>Enter your email below and we'll send you our monthly roundup on the first Monday of each month — free, forever.</div>
-          <div style={{marginBottom:12}}>
-            <label>Your email address</label>
-            <input type="email" placeholder="you@yourcompany.com" value={email} onChange={e=>setEmail(e.target.value)} />
-          </div>
-          <button className="btn btn-full" onClick={()=>{ if(email.includes("@")) setSubmitted(true); }} disabled={!email.includes("@")}>
-            <i className="ti ti-mail"/> Subscribe — it's free
-          </button>
-          <p style={{fontSize:11,color:"#333",marginTop:10,textAlign:"center",fontFamily:"IBM Plex Mono,monospace"}}>No spam. Unsubscribe any time.</p>
-        </div>
-      ) : (
-        <div className="card" style={{textAlign:"center",padding:"32px 24px",maxWidth:480}}>
-          <i className="ti ti-circle-check" style={{fontSize:36,color:ACCENT,display:"block",marginBottom:12}}/>
-          <div style={{fontSize:16,fontWeight:500,color:"#e8e8e0",marginBottom:8}}>You're in!</div>
-          <div style={{fontSize:13,color:"#666"}}>Thanks for subscribing. Your first edition lands next Monday.</div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function AdStackBlogPage({ onBack, onNavigate }) {
   const [article, setArticle] = useState(null);
   usePushState(article ? `/blog/${article}` : '/blog');
@@ -1865,7 +1831,6 @@ function SiteFooter({ onNavigate }) {
   const links = [
     { label:"Blog",        icon:"ti-pencil",      page:"blog" },
     { label:"Advertising", icon:"ti-ad-2",         page:"advertising" },
-    { label:"Subscribe",   icon:"ti-mail",         page:"subscribe" },
     { label:"About Us",    icon:"ti-info-circle",  page:"about" },
     { label:"Privacy Policy", icon:"ti-shield",       page:"privacy" },
   ];
@@ -2073,7 +2038,7 @@ export default function App() {
                   <div style={{ marginTop:24 }}>
                     {page==="blog"        && <AdStackBlogPage key={page} onBack={handleBack} onNavigate={handleNav} />}
                     {page==="advertising" && <AdStackAdvertisingPage onBack={handleBack} />}
-                    {page==="subscribe"   && <AdStackSubscribePage onBack={handleBack} />}
+                    
                     {page==="about"       && <AdStackAboutPage onBack={handleBack} />}
                     {page==="privacy"     && <AdStackPrivacyPage onBack={handleBack} />}
                   </div>
