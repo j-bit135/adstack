@@ -471,7 +471,7 @@ function ABHeadlineScorer() {
                   </div>
                   <div style={{ fontSize:12, color:"#888", marginBottom:6, lineHeight:1.6 }}>{reason}</div>
                   <div style={{ fontSize:11, color:"#555" }}>CTR: <span style={{ color:ctr==="High"?"#4ab870":ctr==="Medium"?ACCENT:"#e06040" }}>{ctr}</span></div>
-                  <div style={{ fontSize:11, color:"#555", marginTop:4 }}>-> <span style={{ color:"#777" }}>{imp}</span></div>
+                  <div style={{ fontSize:11, color:"#555", marginTop:4 }}>{"-> "}<span style={{ color:"#777" }}>{imp}</span></div>
                 </div>
               );
             })}
@@ -680,7 +680,7 @@ function ClientWorkspace({ conventions, onDelete }) {
     <div style={{ textAlign:"center", padding:"60px 20px" }}>
       <i className="ti ti-building" style={{ fontSize:32, color:"#2a2a2a", display:"block", marginBottom:12 }} />
       <div style={{ color:"#444", fontSize:14, marginBottom:8 }}>No saved conventions yet</div>
-      <div style={{ color:"#333", fontSize:12 }}>Use Campaign Naming -> Save to Client Workspace</div>
+      <div style={{ color:"#333", fontSize:12 }}>{"Use Campaign Naming -> Save to Client Workspace"}</div>
     </div>
   );
 
