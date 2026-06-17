@@ -277,7 +277,7 @@ function CopyButton({ text }) {
   return (
     <button className="copy-btn"
       onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>
-      {copied ? "✓" : "copy"}
+      {copied ? "ok" : "copy"}
     </button>
   );
 }
@@ -304,14 +304,7 @@ function CreativeAnalyzer() {
 
   const analyze = async () => {
     setLoading(true); setResult("");
-    const sys = `You are a senior paid media strategist and CRO expert. Use this exact format:
-SCORE: [1-10]
-CTR POTENTIAL: [Low/Medium/High] — [one sentence]
-STRENGTHS:\n• [point]\n• [point]\n• [point]
-WEAKNESSES:\n• [point]\n• [point]
-QUICK WINS:\n• [improvement]\n• [improvement]\n• [improvement]
-REWRITTEN HEADLINE: [improved version]
-Be specific, direct, performance-focused.`;
+    const sys = `You are a senior paid media strategist and CRO expert. Use this exact format:\nSCORE: [1-10]\nCTR POTENTIAL: [Low/Medium/High] — [one sentence]\nSTRENGTHS:\n- [point]\n- [point]\n- [point]\nWEAKNESSES:\n- [point]\n- [point]\nQUICK WINS:\n- [improvement]\n- [improvement]\n- [improvement]\nREWRITTEN HEADLINE: [improved version]\nBe specific, direct, performance-focused.`;
     const r = await callClaude(sys,
       `Ad Type: ${adType}\nHeadline: ${headline}\nDescription: ${desc}${dispUrl ? `\nDisplay URL: ${dispUrl}` : ""}`);
     setResult(r); setLoading(false);
@@ -353,7 +346,7 @@ Be specific, direct, performance-focused.`;
         </div>
       </div>
       <button className="btn btn-full" onClick={analyze} disabled={!headline || loading}>
-        {loading ? <><span className="spinner" /> Analyzing…</> : <><i className="ti ti-scan" /> Analyze Creative</>}
+        {loading ? <><span className="spinner" /> Analyzing...</> : <><i className="ti ti-scan" /> Analyze Creative</>}
       </button>
       {result && (
         <div className="card">
@@ -387,11 +380,10 @@ function ABHeadlineScorer() {
 
   const compare = async () => {
     setLoading(true); setResult(null);
-    const sys = `You are a paid media CRO expert. Return ONLY valid JSON:
-{"winner":"A or B","confidence":"Low/Medium/High","scoreA":1-10,"scoreB":1-10,"ctrA":"Low/Medium/High","ctrB":"Low/Medium/High","reasonA":"2 sentences","reasonB":"2 sentences","winnerReason":"1-2 sentences","improvementA":"one quick win","improvementB":"one quick win","hybridHeadline":"best of both"}`;
+    const sys = `You are a paid media CRO expert. Return ONLY valid JSON:\n{"winner":"A or B","confidence":"Low/Medium/High","scoreA":1-10,"scoreB":1-10,"ctrA":"Low/Medium/High","ctrB":"Low/Medium/High","reasonA":"2 sentences","reasonB":"2 sentences","winnerReason":"1-2 sentences","improvementA":"one quick win","improvementB":"one quick win","hybridHeadline":"best of both"}`;
     const r = await callClaude(sys,
       `Ad Type: ${adType}\nContext: ${context||"general conversion"}\nVariant A: ${headlineA}\nDesc A: ${descA||"N/A"}\nVariant B: ${headlineB}\nDesc B: ${descB||"N/A"}`);
-    try { setResult(JSON.parse(r.replace(/```json|```/g,"").trim())); } catch { setResult({ error:r }); }
+    try { setResult(JSON.parse(r.split("\n").filter(l=>l!=="```"&&!l.startsWith("```")).join("\n").trim())); } catch(e) { setResult({ error:r }); }
     setLoading(false);
   };
 
@@ -437,7 +429,7 @@ function ABHeadlineScorer() {
       </div>
 
       <button className="btn btn-full" onClick={compare} disabled={!headlineA||!headlineB||loading}>
-        {loading ? <><span className="spinner" /> Comparing…</> : <><i className="ti ti-layout-columns" /> Compare Variants</>}
+        {loading ? <><span className="spinner" /> Comparing...</> : <><i className="ti ti-layout-columns" /> Compare Variants</>}
       </button>
 
       {result && !result.error && (
@@ -478,7 +470,7 @@ function ABHeadlineScorer() {
                   </div>
                   <div style={{ fontSize:12, color:"#888", marginBottom:6, lineHeight:1.6 }}>{reason}</div>
                   <div style={{ fontSize:11, color:"#555" }}>CTR: <span style={{ color:ctr==="High"?"#4ab870":ctr==="Medium"?ACCENT:"#e06040" }}>{ctr}</span></div>
-                  <div style={{ fontSize:11, color:"#555", marginTop:4 }}>→ <span style={{ color:"#777" }}>{imp}</span></div>
+                  <div style={{ fontSize:11, color:"#555", marginTop:4 }}>-> <span style={{ color:"#777" }}>{imp}</span></div>
                 </div>
               );
             })}
@@ -501,11 +493,9 @@ function KeywordGenerator() {
 
   const generate = async () => {
     setLoading(true); setResult(null); setSelected([]);
-    const sys = `PPC keyword research specialist. Return ONLY valid JSON:
-{"branded":[],"nonBranded":[],"competitor":[],"longTail":[],"negative":[]}
-8-12 per category.`;
+    const sys = `PPC keyword research specialist. Return ONLY valid JSON:\n{"branded":[],"nonBranded":[],"competitor":[],"longTail":[],"negative":[]}\n8-12 per category.`;
     const r = await callClaude(sys, `Business: ${business}\nBrief: ${brief}\nFocus: ${intent}`);
-    try { setResult(JSON.parse(r.replace(/```json|```/g,"").trim())); } catch { setResult({ error:r }); }
+    try { setResult(JSON.parse(r.split("\n").filter(l=>l!=="```"&&!l.startsWith("```")).join("\n").trim())); } catch(e) { setResult({ error:r }); }
     setLoading(false);
   };
 
@@ -533,7 +523,7 @@ function KeywordGenerator() {
       </div>
       <div><label>Business Brief</label><textarea rows={3} placeholder="e.g. Handcrafted pearl jewellery, studio tours, based in London." value={brief} onChange={e=>setBrief(e.target.value)} /></div>
       <button className="btn btn-full" onClick={generate} disabled={!business||!brief||loading}>
-        {loading ? <><span className="spinner"/>Generating…</> : <><i className="ti ti-tag"/>Generate Keywords</>}
+        {loading ? <><span className="spinner"/>Generating...</> : <><i className="ti ti-tag"/>Generate Keywords</>}
       </button>
       {all && (
         <div className="card">
@@ -548,7 +538,7 @@ function KeywordGenerator() {
           <div style={{ marginBottom:12 }}>
             {(all[tab]||[]).map((kw,i)=>(
               <span key={i} className={`kw-pill ${selected.includes(kw)?"selected":""}`} onClick={()=>toggle(kw)}>
-                {tab==="negative"&&<span style={{ color:"#e06040",fontSize:10 }}>−</span>}{kw}
+                {tab==="negative"&&<span style={{ color:"#e06040",fontSize:10 }}>-</span>}{kw}
               </span>
             ))}
           </div>
@@ -581,10 +571,9 @@ function CampaignNaming({ onSave }) {
 
   const generate = async () => {
     setLoading(true); setResult(null);
-    const sys = `Marketing ops specialist. Return ONLY valid JSON:
-{"campaign":"TEMPLATE","adGroup":"TEMPLATE","examples":["e1","e2","e3"],"conventions":{"separators":"","case":"","date":"","geo":"","notes":""},"variants":["v1","v2","v3"]}`;
+    const sys = `Marketing ops specialist. Return ONLY valid JSON:\n{"campaign":"TEMPLATE","adGroup":"TEMPLATE","examples":["e1","e2","e3"],"conventions":{"separators":"","case":"","date":"","geo":"","notes":""},"variants":["v1","v2","v3"]}`;
     const r = await callClaude(sys,`Channel:${channel}\nBrand:${brand}\nType:${campType}\nGeo:${geo||"UK"}\nObjective:${objective}`);
-    try { setResult(JSON.parse(r.replace(/```json|```/g,"").trim())); } catch { setResult({ raw:r }); }
+    try { setResult(JSON.parse(r.split("\n").filter(l=>l!=="```"&&!l.startsWith("```")).join("\n").trim())); } catch(e) { setResult({ raw:r }); }
     setLoading(false);
   };
 
@@ -615,7 +604,7 @@ function CampaignNaming({ onSave }) {
         </div>
       </div>
       <div className="grid2">
-        <div><label>Campaign Type</label><input placeholder="Brand, Non-Brand, Retargeting…" value={campType} onChange={e=>setCampType(e.target.value)} /></div>
+        <div><label>Campaign Type</label><input placeholder="Brand, Non-Brand, Retargeting..." value={campType} onChange={e=>setCampType(e.target.value)} /></div>
         <div>
           <label>Objective</label>
           <select value={objective} onChange={e=>setObjective(e.target.value)}>
@@ -629,7 +618,7 @@ function CampaignNaming({ onSave }) {
       </div>
       <div><label>Geographic Target</label><input placeholder="e.g. UK, London, GB-ENG" value={geo} onChange={e=>setGeo(e.target.value)} /></div>
       <button className="btn btn-full" onClick={generate} disabled={!brand||!campType||loading}>
-        {loading?<><span className="spinner"/>Generating…</>:<><i className="ti ti-tag-starred"/>Generate Convention</>}
+        {loading?<><span className="spinner"/>Generating...</>:<><i className="ti ti-tag-starred"/>Generate Convention</>}
       </button>
       {res && (
         <div className="card" style={{ display:"flex", flexDirection:"column", gap:16 }}>
@@ -690,7 +679,7 @@ function ClientWorkspace({ conventions, onDelete }) {
     <div style={{ textAlign:"center", padding:"60px 20px" }}>
       <i className="ti ti-building" style={{ fontSize:32, color:"#2a2a2a", display:"block", marginBottom:12 }} />
       <div style={{ color:"#444", fontSize:14, marginBottom:8 }}>No saved conventions yet</div>
-      <div style={{ color:"#333", fontSize:12 }}>Use Campaign Naming → Save to Client Workspace</div>
+      <div style={{ color:"#333", fontSize:12 }}>Use Campaign Naming -> Save to Client Workspace</div>
     </div>
   );
 
@@ -787,7 +776,7 @@ function UTMBuilder() {
         </div>
       </div>
       <div className="grid2">
-        <div><label>utm_source *</label><input placeholder="google, facebook…" value={source} onChange={e=>setSource(e.target.value)} /></div>
+        <div><label>utm_source *</label><input placeholder="google, facebook..." value={source} onChange={e=>setSource(e.target.value)} /></div>
         <div>
           <label>utm_medium *</label>
           <select value={medium} onChange={e=>setMedium(e.target.value)}>
@@ -874,7 +863,7 @@ function BulkUTMBuilder() {
         <div style={{ fontSize:11, color:"#444", textAlign:"right", marginTop:3, fontFamily:"IBM Plex Mono" }}>{urlCount} URLs</div>
       </div>
       <div className="grid2">
-        <div><label>utm_source *</label><input placeholder="google, facebook…" value={source} onChange={e=>setSource(e.target.value)} /></div>
+        <div><label>utm_source *</label><input placeholder="google, facebook..." value={source} onChange={e=>setSource(e.target.value)} /></div>
         <div>
           <label>utm_medium *</label>
           <select value={medium} onChange={e=>setMedium(e.target.value)}>
@@ -931,12 +920,9 @@ function AdCopyGenerator() {
 
   const generate = async () => {
     setLoading(true); setResult(null);
-    const sys = `Direct response copywriter. Return ONLY valid JSON.
-RSA: {"headlines":["h1"..."h15"],"descriptions":["d1"..."d4"],"tips":["t1","t2"]}
-Other: {"primary":["p1","p2","p3"],"headlines":["h1","h2","h3"],"cta":["c1","c2","c3"],"tips":["t1","t2"]}
-Headlines ≤30 chars, descriptions ≤90 chars.`;
-    const r = await callClaude(sys,`Format:${format}\nProduct:${product}\nUSPs:${usp}\nCTA:${cta}\nTone:${tone}`,1400);
-    try { setResult(JSON.parse(r.replace(/```json|```/g,"").trim())); } catch { setResult({ raw:r }); }
+    const sys = "Direct response copywriter. Return ONLY valid JSON. RSA: {\"headlines\":[\"h1\"...\"h15\"],\"descriptions\":[\"d1\"...\"d4\"],\"tips\":[\"t1\",\"t2\"]} Other: {\"primary\":[\"p1\",\"p2\",\"p3\"],\"headlines\":[\"h1\",\"h2\",\"h3\"],\"cta\":[\"c1\",\"c2\",\"c3\"],\"tips\":[\"t1\",\"t2\"]} Headlines max 30 chars, descriptions max 90 chars.";
+    const r = await callClaude(sys, "Format:" + format + " Product:" + product + " USPs:" + usp + " CTA:" + cta + " Tone:" + tone, 1400);
+    try { setResult(JSON.parse(r.split("\n").filter(l=>l!=="```"&&!l.startsWith("```")).join("\n").trim())); } catch(e) { setResult({ raw:r }); }
     setLoading(false);
   };
 
@@ -963,16 +949,16 @@ Headlines ≤30 chars, descriptions ≤90 chars.`;
         </div>
       </div>
       <div><label>Product / Service</label><input placeholder="e.g. Handcrafted pearl jewellery, studio tours" value={product} onChange={e=>setProduct(e.target.value)} /></div>
-      <div><label>Key USPs</label><textarea rows={2} placeholder="Award-winning, free UK delivery, 20+ years experience…" value={usp} onChange={e=>setUsp(e.target.value)} /></div>
-      <div><label>Primary CTA</label><input placeholder="Shop Now, Book a Tour…" value={cta} onChange={e=>setCta(e.target.value)} /></div>
+      <div><label>Key USPs</label><textarea rows={2} placeholder="Award-winning, free UK delivery, 20+ years experience" value={usp} onChange={e=>setUsp(e.target.value)} /></div>
+      <div><label>Primary CTA</label><input placeholder="Shop Now, Book a Tour" value={cta} onChange={e=>setCta(e.target.value)} /></div>
       <button className="btn btn-full" onClick={generate} disabled={!product||loading}>
-        {loading?<><span className="spinner"/>Writing…</>:<><i className="ti ti-writing"/>Generate Copy</>}
+        {loading?<><span className="spinner"/>Writing...</>:<><i className="ti ti-writing"/>Generate Copy</>}
       </button>
       {result && !result.raw && (
         <div className="card" style={{ display:"flex", flexDirection:"column", gap:16 }}>
           {result.headlines && (
             <div>
-              <div className="section-title">Headlines <span style={{ float:"right",fontSize:10,color:"#555" }}>≤30 chars</span></div>
+              <div className="section-title">Headlines <span style={{ float:"right",fontSize:10,color:"#555" }}>max 30 chars</span></div>
               {result.headlines.map((h,i)=>(
                 <div key={i} style={{ display:"grid", gridTemplateColumns:"22px 1fr 60px auto", gap:8, alignItems:"center", padding:"6px 0", borderBottom:"1px solid #1a1a1a" }}>
                   <span style={{ fontFamily:"IBM Plex Mono",fontSize:10,color:"#333" }}>H{i+1}</span>
@@ -985,7 +971,7 @@ Headlines ≤30 chars, descriptions ≤90 chars.`;
           )}
           {result.descriptions && (
             <div>
-              <div className="section-title">Descriptions <span style={{ float:"right",fontSize:10,color:"#555" }}>≤90 chars</span></div>
+              <div className="section-title">Descriptions <span style={{ float:"right",fontSize:10,color:"#555" }}>max 90 chars</span></div>
               {result.descriptions.map((d,i)=>(
                 <div key={i} style={{ display:"grid", gridTemplateColumns:"22px 1fr 60px auto", gap:8, alignItems:"center", padding:"6px 0", borderBottom:"1px solid #1a1a1a" }}>
                   <span style={{ fontFamily:"IBM Plex Mono",fontSize:10,color:"#333" }}>D{i+1}</span>
@@ -1011,14 +997,18 @@ Headlines ≤30 chars, descriptions ≤90 chars.`;
           {result.tips && (
             <div className="tip-box">
               <div style={{ fontSize:11,color:ACCENT,letterSpacing:".06em",marginBottom:8 }}>PERFORMANCE TIPS</div>
-              {result.tips.map((t,i)=><div key={i} style={{ fontSize:12,color:"#888",marginBottom:4 }}>→ {t}</div>)}
+              {result.tips.map((t,i)=><div key={i} style={{ fontSize:12,color:"#888",marginBottom:4 }}>- {t}</div>)}
             </div>
           )}
         </div>
       )}
+      {result && result.raw && (
+        <div className="card"><pre style={{ fontSize:11,color:"#888",whiteSpace:"pre-wrap",margin:0 }}>{result.raw}</pre></div>
+      )}
     </div>
   );
 }
+
 
 /* ──────────────────────────────────── AUDIENCE PLANNER ── */
 function AudiencePlanner() {
@@ -1030,10 +1020,9 @@ function AudiencePlanner() {
 
   const generate = async () => {
     setLoading(true); setResult(null);
-    const sys = `Paid media audience strategist. Return ONLY valid JSON:
-{"primary":[{"name":"","type":"in-market/affinity/custom/remarketing","description":"","size":"small/medium/large","priority":"high/medium"}],"remarketing":[{"name":"","description":"","lookback":"7/14/30/90 days"}],"exclusions":[""],"tip":""}`;
+    const sys = `Paid media audience strategist. Return ONLY valid JSON:\n{"primary":[{"name":"","type":"in-market/affinity/custom/remarketing","description":"","size":"small/medium/large","priority":"high/medium"}],"remarketing":[{"name":"","description":"","lookback":"7/14/30/90 days"}],"exclusions":[""],"tip":""}`;
     const r = await callClaude(sys,`Business:${business}\nProduct:${product}\nPlatform:${platform}`);
-    try { setResult(JSON.parse(r.replace(/```json|```/g,"").trim())); } catch { setResult({ raw:r }); }
+    try { setResult(JSON.parse(r.split("\n").filter(l=>l!=="```"&&!l.startsWith("```")).join("\n").trim())); } catch(e) { setResult({ raw:r }); }
     setLoading(false);
   };
 
@@ -1055,7 +1044,7 @@ function AudiencePlanner() {
       </div>
       <div><label>Product / Service</label><textarea rows={2} placeholder="e.g. Luxury handcrafted pearl jewellery. Studio tours. Bespoke commissions." value={product} onChange={e=>setProduct(e.target.value)} /></div>
       <button className="btn btn-full" onClick={generate} disabled={!business||!product||loading}>
-        {loading?<><span className="spinner"/>Planning…</>:<><i className="ti ti-users"/>Plan Audiences</>}
+        {loading?<><span className="spinner"/>Planning...</>:<><i className="ti ti-users"/>Plan Audiences</>}
       </button>
       {result && !result.raw && (
         <div className="card" style={{ display:"flex", flexDirection:"column", gap:16 }}>
@@ -1095,7 +1084,7 @@ function AudiencePlanner() {
             <div>
               <div className="section-title">Exclusions</div>
               <div style={{ display:"flex",flexWrap:"wrap",gap:6 }}>
-                {result.exclusions.map((ex,i)=><span key={i} style={{ fontFamily:"IBM Plex Mono",fontSize:12,color:"#e06040",background:"#1a0a0a",border:"1px solid #3a1a1a",borderRadius:3,padding:"3px 10px" }}>− {ex}</span>)}
+                {result.exclusions.map((ex,i)=><span key={i} style={{ fontFamily:"IBM Plex Mono",fontSize:12,color:"#e06040",background:"#1a0a0a",border:"1px solid #3a1a1a",borderRadius:3,padding:"3px 10px" }}>- {ex}</span>)}
               </div>
             </div>
           )}
@@ -1139,7 +1128,7 @@ function BottomAdUnit() {
         <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3, flexShrink:0 }}>
           <i className="ti ti-ad-2" style={{ fontSize:isMobile?14:18, color:"#444" }} />
           <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:"#555" }}>
-            {isMobile ? "320 × 50" : "728 × 90"}
+            {isMobile ? "320 x 50" : "728 x 90"}
           </span>
         </div>
         <div style={{ width:1, height:divH, background:"#2a2a2a", flexShrink:0 }} />
@@ -1148,7 +1137,7 @@ function BottomAdUnit() {
             {isMobile ? "Mobile banner — insert ad tag here" : "Leaderboard — insert ad tag here"}
           </span>
           <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:"#3a3a3a" }}>
-            Responsive · switches format by breakpoint
+            Responsive . switches format by breakpoint
           </span>
         </div>
       </div>
@@ -1183,7 +1172,7 @@ function InlineAdUnit() {
         <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3, flexShrink:0 }}>
           <i className="ti ti-ad-2" style={{ fontSize:isMobile?14:18, color:"#444" }} />
           <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:10, color:"#555" }}>
-            {isMobile ? "320 × 50" : "728 × 90"}
+            {isMobile ? "320 x 50" : "728 x 90"}
           </span>
         </div>
         <div style={{ width:1, height:divH, background:"#2a2a2a", flexShrink:0 }} />
@@ -1192,7 +1181,7 @@ function InlineAdUnit() {
             {isMobile ? "Mobile banner — insert ad tag here" : "Leaderboard — insert ad tag here"}
           </span>
           <span style={{ fontFamily:"'IBM Plex Mono',monospace", fontSize:9, color:"#3a3a3a" }}>
-            Responsive · switches format by breakpoint
+            Responsive . switches format by breakpoint
           </span>
         </div>
       </div>
@@ -1200,7 +1189,7 @@ function InlineAdUnit() {
   );
 }
 
-/* ──────────────────────────────────── SIDEBAR AD UNIT (300×250) ── */
+/* ──────────────────────────────────── SIDEBAR AD UNIT (300x250) ── */
 function AdUnit() {
   const [hover, setHover] = useState(false);
   return (
@@ -1217,7 +1206,7 @@ function AdUnit() {
           background:"#E8A020", opacity:hover?1:0.3, transition:"opacity .2s" }} />
         <i className="ti ti-ad-2" style={{ fontSize:28, color:"#2a2a2a", marginBottom:10 }} />
         <div style={{ fontFamily:"IBM Plex Mono,monospace", fontSize:11, color:"#2a2a2a",
-          letterSpacing:".06em", marginBottom:4 }}>300 × 250</div>
+          letterSpacing:".06em", marginBottom:4 }}>300 x 250</div>
         <div style={{ fontFamily:"IBM Plex Mono,monospace", fontSize:10, color:"#222" }}>AD PLACEMENT</div>
         <div style={{ position:"absolute", bottom:8, fontSize:9, color:"#222",
           fontFamily:"IBM Plex Mono,monospace" }}>Insert ad tag here</div>
@@ -1229,45 +1218,22 @@ function AdUnit() {
 /* ──────────────────────────────────── STATIC PAGES ── */
 
 
-function AdStackAdvertisingPage({ onBack }) {
+function PageWrapper({ onBack, accentColor, children }) {
   return (
     <div>
-      <div style={{marginBottom:28}}>
-        <div style={{fontSize:11,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".1em",marginBottom:8,textTransform:"uppercase"}}>Advertising</div>
-        <h1 style={{fontSize:26,fontWeight:600,color:"#e8e8e0",marginBottom:12,lineHeight:1.3}}>Reach the people who run paid media</h1>
-        <p style={{fontSize:15,color:"#666",lineHeight:1.8}}>ADSTACK is used by digital marketers, paid media managers, PPC specialists, and agency teams across the UK. These are professionals who make daily decisions about ad spend, tools, and platforms — a high-intent, commercially active audience.</p>
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:12,marginBottom:28}}>
-        {[
-          {label:"Primary Audience",value:"Digital marketers & PPC managers"},
-          {label:"Secondary Audience",value:"Agency teams & freelance consultants"},
-          {label:"Geography",value:"Primarily UK-based"},
-          {label:"Ad Formats",value:"728×90 leaderboard, 320×50 mobile, 300×250 sidebar"},
-        ].map(item=>(
-          <div key={item.label} className="card" style={{padding:"14px 16px"}}>
-            <div style={{fontSize:10,color:"#555",letterSpacing:".08em",textTransform:"uppercase",fontFamily:"IBM Plex Mono,monospace",marginBottom:6}}>{item.label}</div>
-            <div style={{fontSize:13,color:"#c8c8c0",lineHeight:1.5}}>{item.value}</div>
-          </div>
-        ))}
-      </div>
-      <div className="card" style={{borderColor:"#2a2a2a",marginBottom:20}}>
-        <div style={{fontSize:11,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".08em",marginBottom:12,textTransform:"uppercase"}}>Get in touch</div>
-        <p style={{fontSize:14,color:"#888",lineHeight:1.8,marginBottom:16}}>
-          We offer direct advertising placements across ADSTACK — a great fit for martech vendors, SaaS tools, agencies, training providers, and anyone whose product serves the paid media community. All enquiries are handled personally and quickly.
-        </p>
-        <div style={{display:"inline-flex",alignItems:"center",gap:10,background:"#0a0a0a",border:`1px solid ${ACCENT}`,borderRadius:4,padding:"10px 18px"}}>
-          <i className="ti ti-mail" style={{fontSize:15,color:ACCENT}}/>
-          <a href="mailto:contact.adstack@gmail.com" style={{fontFamily:"IBM Plex Mono,monospace",fontSize:13,color:ACCENT,textDecoration:"none",letterSpacing:".03em"}}>contact.adstack@gmail.com</a>
-        </div>
-        <p style={{fontSize:12,color:"#444",marginTop:12,fontStyle:"italic"}}>Contact us directly for rates, formats and availability.</p>
-      </div>
+      <button onClick={onBack} style={{ display:"inline-flex", alignItems:"center", gap:6, background:"transparent", border:`1px solid #2a2a2a`, borderRadius:4, color:"#666", fontSize:12, fontFamily:"IBM Plex Mono,monospace", padding:"6px 14px", cursor:"pointer", marginBottom:24, transition:"all .15s" }}
+        onMouseEnter={e=>{e.currentTarget.style.borderColor=accentColor;e.currentTarget.style.color=accentColor;}}
+        onMouseLeave={e=>{e.currentTarget.style.borderColor="#2a2a2a";e.currentTarget.style.color="#666";}}>
+        <i className="ti ti-arrow-left" style={{fontSize:13}}/> Back to tools
+      </button>
+      {children}
     </div>
   );
 }
 
 function AdStackAboutPage({ onBack }) {
   return (
-    <div>
+    <PageWrapper onBack={onBack} accentColor={ACCENT}>
       <div style={{marginBottom:28}}>
         <div style={{fontSize:11,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".1em",marginBottom:8,textTransform:"uppercase"}}>About Us</div>
         <h1 style={{fontSize:26,fontWeight:600,color:"#e8e8e0",marginBottom:12,lineHeight:1.3}}>Built by practitioners, for practitioners</h1>
@@ -1277,7 +1243,7 @@ function AdStackAboutPage({ onBack }) {
           Between us, our team brings over a decade of hands-on experience in web development and digital media — working across industries from retail and finance to healthcare and e-commerce, and everything in between. We've sat on both sides of the table: building the platforms and running the campaigns.
         </p>
         <p style={{fontSize:14,color:"#888",marginBottom:16}}>
-          Over those years, one thing became consistently clear: the people doing the actual work — the paid media managers, the PPC specialists, the agency account leads — were patching together a dozen different tools to handle tasks that should be simple. UTM parameters built in spreadsheets. Campaign names documented in a shared Google Doc nobody could find. Ad copy reviewed by gut feel with no structured feedback.
+          Over those years, one thing became consistently clear: the people doing the actual work — the paid media managers, the PPC specialists, the agency account leads — were patching together a dozen different tools to handle tasks that should be simple.
         </p>
         <p style={{fontSize:14,color:"#888",marginBottom:16}}>
           So in 2026, we decided to do something about it. Our goal was straightforward: build the toolkit we always wished existed. AI-powered where it adds genuine value, fast and frictionless everywhere else, and completely free to use. No sign-up walls. No feature-gating. Just tools that work.
@@ -1300,388 +1266,110 @@ function AdStackAboutPage({ onBack }) {
           </div>
         ))}
       </div>
-    </div>
+    </PageWrapper>
   );
 }
 
-function AdStackBlogPage({ onBack, onNavigate }) {
+function AdStackBlogPage({ onBack }) {
   const [article, setArticle] = useState(null);
-  usePushState(article ? `/blog/${article}` : '/blog');
-  useEffect(() => {
-    if (article) {
-      const post = posts.find(p => p.slug === article);
-      if (post) {
-        document.title = post.title + ' | ADSTACK';
-        let m = document.querySelector('meta[name="description"]');
-        if (!m) { m = document.createElement('meta'); m.name = 'description'; document.head.appendChild(m); }
-        m.content = post.intro;
-        let c = document.querySelector('link[rel="canonical"]');
-        if (!c) { c = document.createElement('link'); c.rel = 'canonical'; document.head.appendChild(c); }
-        c.href = 'https://adstack.co.uk/blog/' + article;
-      }
-    }
-  }, [article]);
   const posts = [
     {
       slug:"why-utm-parameters-matter",
       title:"Why UTM Parameters Are Non-Negotiable in Paid Media",
+      date:"2 June 2026",
       readTime:"6 min read",
       category:"Analytics & Tracking",
-      intro:"If you're running paid campaigns without UTM parameters, you're essentially flying blind. Here's why proper UTM tracking is one of the highest-leverage habits any paid media professional can build.",
-      body:`Every pound you spend on paid media should be traceable. Not approximately traceable — precisely, reliably, consistently traceable. And yet, for all the sophistication that modern advertising platforms offer, one of the most common failures in digital marketing remains surprisingly basic: campaigns running without proper UTM parameters.
-
-UTM parameters — Urchin Tracking Module parameters, a naming convention inherited from a web analytics tool Google acquired back in 2005 — are small snippets of text appended to your landing page URLs. They tell Google Analytics (and GA4 specifically) exactly where a visitor came from, how they got there, and which specific campaign, ad group, or piece of creative drove that visit.
-
-A properly tagged URL looks something like this:
-
-https://yoursite.com/landing?utm_source=google&utm_medium=cpc&utm_campaign=spring_sale_2026&utm_term=running+shoes+uk&utm_content=headline_a
-
-Five parameters. Each one adds a layer of granularity that transforms your analytics from vague channel-level data into something you can actually make decisions with.
-
-WHY IT MATTERS MORE THAN MOST PEOPLE REALISE
-
-The problem with untagged traffic isn't that it disappears — it's that it gets misattributed. GA4 will still register the visit. It will still count the session. But without UTM data, it will often categorise paid traffic as "direct" or lump it into a generic "referral" bucket, stripping away the campaign context you need to evaluate performance.
-
-This creates a specific and damaging failure mode: you see your direct traffic performing brilliantly, you congratulate yourself on brand strength, and you under-invest in the paid channels that were actually responsible. The budget decisions that follow are based on a fiction.
-
-For agencies managing multiple clients across multiple channels, the stakes are higher still. A single missing UTM on a high-spend campaign can make an entire channel look like it's not working — leading to budget cuts, channel pivots, and difficult client conversations that were all entirely avoidable.
-
-THE FIVE PARAMETERS AND WHEN TO USE THEM
-
-utm_source identifies where the traffic originated. Google, Facebook, LinkedIn, a newsletter — this should always be present, no exceptions.
-
-utm_medium describes the marketing channel type. The most important thing here is consistency. If you use "cpc" for Google Search, use "cpc" every time — not "paid", not "PPC", not "google-cpc". Inconsistent medium values fragment your data and make channel-level reporting a headache.
-
-utm_campaign maps to your campaign name. This is where a solid naming convention pays dividends — if your campaign names are structured and consistent, your GA4 reports become readable at a glance. If they're not, you'll spend more time deciphering your own data than acting on it.
-
-utm_term is for paid search specifically — it captures the keyword that triggered the ad. Particularly useful when you're analysing which search terms are driving conversions versus which are burning budget.
-
-utm_content is your A/B testing parameter. Use it to differentiate between ad variants, creative versions, or placements within the same campaign. It's the parameter most people ignore and the one that unlocks genuine creative testing discipline.
-
-BUILDING A SUSTAINABLE UTM HABIT
-
-The single biggest barrier to consistent UTM usage isn't knowledge — most marketers know they should be tagging their URLs. The barrier is friction. Manually constructing UTM strings is tedious, error-prone, and inconsistent across teams.
-
-The solution is twofold: standardise your naming conventions (decide once what your sources, mediums, and campaign naming structure will be, document it, and enforce it) and use a builder tool that removes the manual construction step entirely.
-
-When UTM tagging becomes a one-click operation rather than a manual string-building exercise, compliance goes up dramatically. And when compliance goes up, your analytics data becomes the reliable foundation it should always have been — and your paid media decisions get sharper as a result.`,
+      intro:"If you are running paid campaigns without UTM parameters, you are essentially flying blind. Here is why proper UTM tracking is one of the highest-leverage habits any paid media professional can build.",
+      body:"Every pound you spend on paid media should be traceable. Not approximately traceable - precisely, reliably, consistently traceable.\n\nUTM parameters are small snippets of text appended to your landing page URLs. They tell Google Analytics exactly where a visitor came from, how they got there, and which specific campaign drove that visit.\n\nWHY IT MATTERS\n\nWithout UTM data, GA4 often categorises paid traffic as direct, stripping away the campaign context you need to evaluate performance. Budget decisions that follow are based on incomplete data.\n\nTHE FIVE PARAMETERS\n\nutm_source identifies where traffic originated. utm_medium describes the channel type - use cpc consistently. utm_campaign maps to your campaign name. utm_term captures keywords for paid search. utm_content is your A/B testing parameter.\n\nBUILDING A SUSTAINABLE HABIT\n\nThe barrier to consistent UTM usage is friction. Use a builder tool that removes the manual construction step. When UTM tagging becomes a one-click operation, compliance goes up and your analytics data becomes the reliable foundation it should always have been.",
     },
     {
       slug:"campaign-naming-conventions-google-ads",
       title:"The Complete Guide to Campaign Naming Conventions in Google Ads",
+      date:"3 June 2026",
       readTime:"7 min read",
       category:"Campaign Management",
-      intro:"A consistent campaign naming convention is one of the most unglamorous — and most valuable — habits in paid media. Here is how to build one that scales across clients, channels and teams.",
-      body:`Ask any paid media manager what their Google Ads account looks like after twelve months of multiple people making changes and you will get a similar answer. A graveyard of campaign names that made sense at the time, created by different people, following different logic, with nothing to tie them together.
-
-Campaign_2024_brand_new. Google - Search - NB. SEARCH | Non-Brand | UK | Exact. March_Promo_v3_FINAL.
-
-These are all real naming patterns that exist in real accounts right now. And the problem is not just aesthetic — it is operational. When campaign names are inconsistent, reporting becomes slow, automation breaks, and onboarding new team members takes three times longer than it should.
-
-A naming convention solves all of this. The goal is simple: anyone looking at a campaign name should immediately understand what it is, where it runs, who it targets, and what it is trying to achieve — without having to open it.
-
-THE ANATOMY OF A GOOD CAMPAIGN NAME
-
-A well-structured campaign name is built from a fixed set of segments, separated by a consistent delimiter, always in the same order. A reliable structure for Google Search looks like this:
-
-BRAND_CHANNEL_TYPE_GEO_OBJECTIVE_YYYYMM
-
-Breaking that down: BRAND is the client or product name. CHANNEL is the platform (GSEARCH, GDISPLAY, PMAX, META, LI). TYPE is the campaign category (BRAND, NONBRAND, RLSA, RETARGETING, COMPETITOR). GEO is the geographic target (UK, US, LONDON, GB-ENG). OBJECTIVE is the goal (CONV, LEADS, AWARE, ROAS). YYYYMM is the launch date.
-
-So a non-brand UK conversions campaign for a client called Pearl Studio launching in June 2026 becomes: PEARLSTUDIO_GSEARCH_NONBRAND_UK_CONV_202606
-
-At a glance, from a campaign list, you know everything you need to know.
-
-CHOOSING YOUR DELIMITER
-
-Underscores are the most practical choice. They are readable, they survive export to spreadsheets without breaking, and they are safe in scripts and automated rules. Hyphens are acceptable but can cause issues in some automation tools. Spaces are never appropriate — they break in URLs, APIs, and scripts.
-
-Whatever you choose, the rule is absolute consistency. A mix of underscores and hyphens in the same account is worse than using either one exclusively, because it defeats the purpose of having a system at all.
-
-AD GROUP NAMING
-
-The same logic applies one level down. A clean ad group name follows: BRAND_THEME_MATCHTYPE
-
-Where THEME is the keyword cluster or audience segment, and MATCHTYPE is EXACT, PHRASE, or BROAD. So: PEARLSTUDIO_PEARL-EARRINGS_EXACT
-
-MAKING IT STICK ACROSS A TEAM
-
-A naming convention only works if everyone follows it, every time. The practical steps are straightforward: document it in a shared place everyone actually uses, build a naming generator tool into your workflow so the format is applied automatically rather than remembered manually, and audit existing campaigns before they get renamed — a half-migrated account is more confusing than a consistently bad one.
-
-The investment in getting this right is small. The compounding return in reporting clarity, automation reliability, and team efficiency is significant. It is one of those rare things in paid media that costs almost nothing to do well and a great deal to undo when done badly.`,
+      intro:"A consistent campaign naming convention is one of the most unglamorous and most valuable habits in paid media. Here is how to build one that scales across clients, channels and teams.",
+      body:"THE ANATOMY OF A GOOD CAMPAIGN NAME\n\nA well-structured campaign name is built from a fixed set of segments separated by a consistent delimiter always in the same order. A reliable structure for Google Search looks like this: BRAND_CHANNEL_TYPE_GEO_OBJECTIVE_YYYYMM\n\nBreaking that down: BRAND is the client or product name. CHANNEL is the platform (GSEARCH, GDISPLAY, PMAX, META). TYPE is the campaign category (BRAND, NONBRAND, RLSA, RETARGETING). GEO is the geographic target. OBJECTIVE is the goal (CONV, LEADS, AWARE, ROAS). YYYYMM is the launch date.\n\nSo a non-brand UK conversions campaign for Pearl Studio launching in June 2026 becomes: PEARLSTUDIO_GSEARCH_NONBRAND_UK_CONV_202606\n\nCHOOSING YOUR DELIMITER\n\nUnderscores are the most practical choice. They are readable, survive export to spreadsheets without breaking, and are safe in scripts and automated rules. Hyphens are acceptable but can cause issues in some automation tools. Spaces are never appropriate.\n\nMAKING IT STICK ACROSS A TEAM\n\nA naming convention only works if everyone follows it every time. Document it in a shared place everyone actually uses, build a naming generator tool into your workflow so the format is applied automatically, and audit existing campaigns before they get renamed.",
     },
     {
       slug:"ga4-vs-universal-analytics-paid-media",
-      title:"GA4 vs Universal Analytics — What Paid Media Managers Actually Need to Know",
+      title:"GA4 vs Universal Analytics - What Paid Media Managers Actually Need to Know",
+      date:"4 June 2026",
       readTime:"6 min read",
-      category:"Analytics & Tracking",
-      intro:"Universal Analytics is gone. GA4 is here and it works very differently. For paid media managers, the shift is more significant than most realise — here is what has genuinely changed and what it means for your campaigns.",
-      body:`If you have been putting off properly learning GA4 because you were comfortable with Universal Analytics, the grace period is over. Universal Analytics stopped processing hits in mid-2023 and historical data access has since been sunset. GA4 is not just an upgrade — it is a fundamentally different approach to web analytics, and the differences matter considerably for how paid media is measured and optimised.
-
-THE CORE DIFFERENCE: EVENTS REPLACE SESSIONS
-
-Universal Analytics was built around sessions and pageviews. A session was the fundamental unit of measurement — a container of interactions from a single visit, bucketed into neat channel groupings that were relatively predictable.
-
-GA4 is built around events. Every interaction — a pageview, a scroll, a click, a video play, a form submission — is an event with attached parameters. There are no pageviews in the traditional sense. There are page_view events. This sounds like a semantic difference but it changes how almost everything is measured, attributed, and reported.
-
-For paid media managers, the most immediately relevant change is in conversion tracking. What were called Goals in Universal Analytics are called Key Events in GA4. The mechanics are similar but the configuration is different, and the attribution models available have changed significantly.
-
-ATTRIBUTION MODELS IN GA4
-
-Universal Analytics offered a range of attribution models — last click, first click, linear, time decay, position-based — that you could apply in the Multi-Channel Funnels reports. GA4 has simplified this considerably. The default attribution model is data-driven attribution, which uses machine learning to distribute credit across touchpoints based on their actual contribution to conversions.
-
-For most paid media accounts this is a positive change — data-driven attribution is generally more accurate than last-click and avoids the chronic under-crediting of upper-funnel channels that plagued Universal Analytics reporting. However, it also means that the numbers you see in GA4 will rarely match what you saw in Universal Analytics, and direct comparisons between the two are not meaningful.
-
-CONNECTING GA4 TO GOOGLE ADS
-
-The GA4 and Google Ads integration is where things get practically important. Linking the two accounts allows you to import Key Events as Google Ads conversions, use GA4 audiences for remarketing, and see GA4 metrics directly in Google Ads reports.
-
-The setup is straightforward but requires admin access to both accounts and a few specific configurations to ensure data is flowing correctly. One common issue is duplicate conversion counting — where both the Google Ads conversion tag and the GA4-imported conversion are active simultaneously, inflating reported conversion numbers. Auditing your conversion actions when migrating is not optional.
-
-WHAT HAS NOT CHANGED
-
-UTM parameter tracking works the same way. Campaign, source, medium, term and content all populate in GA4 exactly as they did in Universal Analytics, and the Traffic Acquisition report is the closest equivalent to the old Acquisition reports. The main practical difference is that GA4 requires slightly more navigation to get to the same data, and the Explorations feature — GA4s free-form analysis tool — is where most of the deeper channel analysis now lives.
-
-The fundamentals of what good analytics looks like have not changed. Clean UTM tagging, consistent naming, properly configured conversions, and regular auditing still form the foundation of reliable paid media measurement. GA4 just requires relearning where to find the outputs.`,
+      category:"Analytics and Tracking",
+      intro:"Universal Analytics is gone. GA4 is here and it works very differently. For paid media managers the shift is more significant than most realise - here is what has genuinely changed and what it means for your campaigns.",
+      body:"THE CORE DIFFERENCE: EVENTS REPLACE SESSIONS\n\nUniversal Analytics was built around sessions and pageviews. GA4 is built around events. Every interaction is an event with attached parameters. For paid media managers the most immediately relevant change is in conversion tracking. What were called Goals in Universal Analytics are called Key Events in GA4.\n\nATTRIBUTION MODELS IN GA4\n\nGA4 has simplified attribution considerably. The default model is data-driven attribution which uses machine learning to distribute credit across touchpoints based on their actual contribution to conversions. For most paid media accounts this is a positive change - data-driven attribution is generally more accurate than last-click and avoids the chronic under-crediting of upper-funnel channels.\n\nCONNECTING GA4 TO GOOGLE ADS\n\nLinking the two accounts allows you to import Key Events as Google Ads conversions, use GA4 audiences for remarketing, and see GA4 metrics directly in Google Ads reports. One common issue is duplicate conversion counting where both the Google Ads conversion tag and the GA4-imported conversion are active simultaneously. Auditing your conversion actions when migrating is not optional.\n\nWHAT HAS NOT CHANGED\n\nUTM parameter tracking works the same way. The Traffic Acquisition report is the closest equivalent to the old Acquisition reports. The fundamentals of good analytics have not changed - clean UTM tagging, consistent naming, properly configured conversions, and regular auditing still form the foundation.",
     },
     {
       slug:"how-to-structure-google-ads-account",
       title:"How to Structure a Google Ads Account for Maximum Performance",
+      date:"5 June 2026",
       readTime:"8 min read",
       category:"Paid Search",
-      intro:"Account structure is the foundation that everything else in Google Ads is built on. Get it right and optimisation becomes straightforward. Get it wrong and no amount of bid adjustments or ad copy tweaks will fix it.",
-      body:`Google Ads account structure is one of those topics that experienced paid media managers feel strongly about and beginners underestimate. It is easy to get campaigns live. It is considerably harder to build an account architecture that supports long-term performance, clean reporting, and efficient budget management across months and years of activity.
-
-This is not a guide to the basics. This is a framework for thinking about structure the way experienced practitioners do.
-
-THE HIERARCHY AND WHY IT MATTERS
-
-A Google Ads account has four levels: Account, Campaign, Ad Group, and Ad. Each level controls different things. Campaigns control budget, geographic targeting, bidding strategy, and network settings. Ad groups control keyword groupings and the ads that serve against them. Getting confused about which lever lives at which level is one of the most common sources of structural problems.
-
-The most important structural principle is that campaigns should be segmented in a way that reflects how you want to control budget and bidding. If you need to allocate budget separately between brand and non-brand terms, they must be in separate campaigns. If you want different bidding strategies for different product categories, those categories need their own campaigns. Ad groups should then be tightly themed — clusters of closely related keywords that share a clear intent and can be served by the same ads.
-
-BRAND VS NON-BRAND SEPARATION
-
-Always separate brand and non-brand keywords into different campaigns. This is non-negotiable for any account managing meaningful spend. Brand campaigns typically have much higher conversion rates, lower CPCs, and better Quality Scores than non-brand. If they share a campaign, the budget and bidding dynamics of one will constantly interfere with the other, and your reporting will blur two fundamentally different traffic types into a single view.
-
-Brand campaigns also serve a defensive purpose — preventing competitors from capturing branded search traffic — and should almost always be running regardless of budget pressure elsewhere. Keeping them structurally separate makes it easier to protect them.
-
-SINGLE THEME AD GROUPS
-
-The STAG — Single Theme Ad Group — approach has largely supplanted the older SKAG (Single Keyword Ad Group) model as Google has moved toward broader matching and smart bidding. The principle is that each ad group should contain keywords that share a clear, specific intent theme, with ads written to speak directly to that intent.
-
-Tight ad groups produce better Quality Scores because ad relevance is higher. Better Quality Scores produce lower CPCs. Lower CPCs mean more clicks for the same budget. The compounding effect of good ad group structure on account efficiency over time is substantial.
-
-PERFORMANCE MAX AND CAMPAIGN STRUCTURE
-
-Performance Max has introduced structural complexity that did not exist previously. PMax campaigns access all Google inventory and use asset groups rather than traditional ad groups. The structural question with PMax is primarily about asset group organisation and audience signals rather than keyword clustering.
-
-The practical recommendation for most accounts is to run PMax alongside traditional Search campaigns rather than replacing them entirely. Brand terms in particular should be protected in dedicated Search campaigns with exact match keywords to prevent PMax from cannibalising branded traffic at a higher cost.
-
-NEGATIVE KEYWORDS AS STRUCTURAL TOOLS
-
-Negative keywords are not just a hygiene task — they are a structural tool. Campaign-level negatives define the boundaries of what each campaign can and cannot match. A well-maintained negative keyword list at campaign level, combined with a shared negative list at account level, is what prevents your brand campaign from matching non-brand queries and your non-brand campaign from matching irrelevant traffic.
-
-Structural clarity in an account is ultimately about control. The cleaner the structure, the more precisely you can control where budget goes, how bids are set, and what the reporting tells you. Accounts that start with a clear structure and maintain it consistently will always outperform accounts that accumulate structural complexity over time.`,
+      intro:"Account structure is the foundation that everything else in Google Ads is built on. Get it right and optimisation becomes straightforward. Get it wrong and no amount of bid adjustments will fix it.",
+      body:"THE HIERARCHY AND WHY IT MATTERS\n\nA Google Ads account has four levels: Account, Campaign, Ad Group, and Ad. Campaigns control budget, geographic targeting, bidding strategy, and network settings. Ad groups control keyword groupings and the ads that serve against them.\n\nBRAND VS NON-BRAND SEPARATION\n\nAlways separate brand and non-brand keywords into different campaigns. This is non-negotiable for any account managing meaningful spend. Brand campaigns typically have much higher conversion rates, lower CPCs, and better Quality Scores than non-brand. If they share a campaign the budget and bidding dynamics of one will constantly interfere with the other.\n\nSINGLE THEME AD GROUPS\n\nThe STAG approach - Single Theme Ad Group - has largely supplanted the older SKAG model as Google has moved toward broader matching and smart bidding. Each ad group should contain keywords that share a clear specific intent theme with ads written to speak directly to that intent. Tight ad groups produce better Quality Scores because ad relevance is higher.\n\nPERFORMANCE MAX AND CAMPAIGN STRUCTURE\n\nThe practical recommendation for most accounts is to run PMax alongside traditional Search campaigns rather than replacing them entirely. Brand terms in particular should be protected in dedicated Search campaigns with exact match keywords to prevent PMax from cannibalising branded traffic at a higher cost.\n\nNEGATIVE KEYWORDS AS STRUCTURAL TOOLS\n\nNegative keywords are not just a hygiene task - they are a structural tool. Campaign-level negatives define the boundaries of what each campaign can and cannot match.",
     }
-,
+    ,
     {
       slug:"how-to-set-up-scroll-depth-tracking-gtm",
       title:"How to Set Up Scroll Depth Tracking in Google Tag Manager",
+      date:"6 June 2026",
       readTime:"6 min read",
       category:"Google Tag Manager",
       intro:"Scroll depth tracking is one of the most underused insights in digital analytics. Here is a step-by-step guide to setting it up properly in GTM so you can understand how far users actually read your content.",
-      body:`Pageviews tell you someone visited. Time on page tells you roughly how long they stayed. But neither tells you what they actually did while they were there. Scroll depth tracking fills that gap — it tells you how far down a page a user scrolled, which is one of the most direct signals of genuine content engagement available in GA4.
-
-The good news is that Google Tag Manager makes scroll depth tracking straightforward with its built-in Scroll Depth trigger. The less good news is that the default configuration is often set up in a way that produces noisy, misleading data. Here is how to do it properly.
-
-WHAT SCROLL DEPTH TRACKING ACTUALLY MEASURES
-
-A scroll depth event fires when a user scrolls past a defined threshold on a page — typically expressed as a percentage of total page height. Common thresholds are 25%, 50%, 75%, and 90%. When a user scrolls past each threshold, GTM fires a trigger that you can capture as a GA4 event.
-
-The key insight is that 90% scroll depth is a strong signal of genuine engagement — someone who scrolls 90% of the way through a long article almost certainly read it, or at least engaged with it seriously. This makes scroll depth a far better proxy for content quality than pageviews or average session duration.
-
-SETTING UP THE TRIGGER IN GTM
-
-Open Google Tag Manager and navigate to Triggers, then create a new trigger. Select Scroll Depth as the trigger type. You will see options for Vertical Scroll Depths and Horizontal Scroll Depths — for most content tracking purposes you want Vertical.
-
-Set the trigger to fire on Percentages and enter your thresholds: 25, 50, 75, 90. Enable the option to fire this trigger on all pages, or specify a page path pattern if you only want to track specific content types such as blog posts.
-
-One important setting that is frequently overlooked: enable the option to fire this trigger only once per page. Without this, if a user scrolls down and then back up and down again, the trigger will fire multiple times for the same threshold, inflating your event counts.
-
-CREATING THE GA4 TAG
-
-With your trigger set up, create a new tag of type Google Analytics: GA4 Event. Connect it to your GA4 Measurement ID and give the event a clear name — scroll_depth is the standard convention.
-
-Add event parameters to capture the useful data: {{Scroll Depth Threshold}} as a parameter named percent_scrolled, and {{Page Path}} as a parameter named page_path. This gives you the ability to segment scroll depth data by page in GA4 Explorations, which is where the real insight lives.
-
-INTERPRETING THE DATA IN GA4
-
-In GA4, navigate to Explorations and create a free-form report. Use percent_scrolled as a dimension and event_count as a metric, with page_path as a breakdown. This shows you which pages have strong read-through rates and which are losing readers early — exactly the insight you need to make informed decisions about content structure and length.
-
-A page where 80% of users hit the 90% threshold is performing well. A page where only 20% make it past 50% has a problem — either the content is not delivering on the headline promise, the page loads slowly, or the layout is creating friction. Scroll depth data turns that from a guess into a diagnosis.`,
+      body:"Pageviews tell you someone visited. Time on page tells you roughly how long they stayed. But neither tells you what they actually did while they were there. Scroll depth tracking fills that gap.\n\nSETTING UP THE TRIGGER IN GTM\n\nOpen Google Tag Manager and navigate to Triggers, then create a new trigger. Select Scroll Depth as the trigger type. Set the trigger to fire on Percentages and enter your thresholds: 25, 50, 75, 90. Enable the option to fire this trigger only once per page - without this, scrolling up and down will fire the trigger multiple times, inflating your event counts.\n\nCREATING THE GA4 TAG\n\nCreate a new tag of type Google Analytics: GA4 Event. Give the event a clear name - scroll_depth is the standard convention. Add event parameters to capture useful data: Scroll Depth Threshold as percent_scrolled, and Page Path as page_path.\n\nINTERPRETING THE DATA IN GA4\n\nIn GA4, navigate to Explorations and create a free-form report. Use percent_scrolled as a dimension and event_count as a metric with page_path as a breakdown. A page where 80% of users hit the 90% threshold is performing well. A page where only 20% make it past 50% has a problem - either the content is not delivering on the headline promise or the layout is creating friction.",
     },
     {
       slug:"gtm-vs-hardcoded-tags",
-      title:"GTM vs Hardcoded Tags — Which Should You Use and When?",
+      title:"GTM vs Hardcoded Tags - Which Should You Use and When?",
+      date:"7 June 2026",
       readTime:"5 min read",
       category:"Google Tag Manager",
-      intro:"The debate between Google Tag Manager and hardcoded tracking tags has a clear answer — but it depends on what you are tracking, who is doing it, and how your development workflow is structured.",
-      body:`Every digital analytics implementation eventually faces the same question: should this tag go through GTM or be hardcoded directly into the page? The answer is not always GTM, and understanding when each approach is appropriate will save you from a category of tracking problems that are surprisingly common and surprisingly painful to diagnose.
-
-THE CASE FOR GTM
-
-Google Tag Manager exists to solve a specific problem: the bottleneck between marketing teams who need tracking changes and development teams who control the codebase. Before tag management systems existed, every new pixel, every conversion tag, every analytics event required a code deployment. In fast-moving marketing environments, that was a serious constraint.
-
-GTM removes that bottleneck for the majority of tracking needs. A paid media manager can add a new conversion event, test it in GTM's preview mode, and publish it without a single line going through a development sprint. For organisations where marketing and development move at different speeds — which is most organisations — this is a substantial operational advantage.
-
-GTM is also excellent for tracking that needs to be flexible and iterable. If you are experimenting with different event structures in GA4, testing different attribution approaches, or managing tracking across multiple environments, GTM's container model and version history make that significantly easier than maintaining hardcoded implementations.
-
-THE CASE FOR HARDCODED TAGS
-
-The argument for hardcoded tags comes down to performance, reliability, and complexity. GTM adds a JavaScript library to every page load. For most sites the performance impact is negligible, but for high-performance applications where every millisecond of load time matters — e-commerce sites with significant revenue per second, for instance — the additional request and execution overhead of GTM is a legitimate concern.
-
-More importantly, hardcoded implementations are more reliable for tracking that is truly critical. GTM tags can be blocked by ad blockers, browser extensions, and content security policies in ways that hardcoded implementations sometimes are not. For tracking that drives significant business decisions — primary conversion events, revenue attribution — a hardcoded implementation with a GTM layer on top is a defensible belt-and-braces approach.
-
-THE PRACTICAL RECOMMENDATION
-
-For most digital marketing tracking needs, GTM is the right answer. Page view events, scroll depth, click tracking, form submissions, and campaign conversion events all belong in GTM where they can be managed, tested, and updated without developer involvement.
-
-For business-critical conversion tracking — purchases, lead form submissions that drive direct revenue attribution — implement both. Hardcode the primary conversion event and use GTM for additional tracking layers. This ensures your core measurement is never disrupted by GTM loading failures or blocking, while preserving the flexibility GTM provides for everything else.
-
-The golden rule is straightforward: if a tracking failure would cause you to make a wrong business decision, hardcode it. If a tracking failure would be an inconvenience, GTM is fine.`,
+      intro:"The debate between Google Tag Manager and hardcoded tracking tags has a clear answer - but it depends on what you are tracking, who is doing it, and how your development workflow is structured.",
+      body:"THE CASE FOR GTM\n\nGoogle Tag Manager exists to solve a specific problem: the bottleneck between marketing teams who need tracking changes and development teams who control the codebase. A paid media manager can add a new conversion event, test it in GTM preview mode, and publish it without a single line going through a development sprint. For organisations where marketing and development move at different speeds this is a substantial operational advantage.\n\nTHE CASE FOR HARDCODED TAGS\n\nThe argument for hardcoded tags comes down to performance, reliability, and complexity. GTM tags can be blocked by ad blockers, browser extensions, and content security policies in ways that hardcoded implementations sometimes are not. For tracking that drives significant business decisions - primary conversion events, revenue attribution - a hardcoded implementation with a GTM layer on top is a defensible approach.\n\nTHE PRACTICAL RECOMMENDATION\n\nFor most digital marketing tracking needs, GTM is the right answer. Page view events, scroll depth, click tracking, form submissions, and campaign conversion events all belong in GTM. For business-critical conversion tracking implement both. The golden rule is straightforward: if a tracking failure would cause you to make a wrong business decision, hardcode it. If a tracking failure would be an inconvenience, GTM is fine.",
     },
     {
       slug:"best-session-recording-tools-compared",
       title:"Best Session Recording Tools Compared: Hotjar vs Microsoft Clarity vs Others",
+      date:"8 June 2026",
       readTime:"7 min read",
-      category:"Analytics & Tracking",
-      intro:"Session recording tools show you exactly how real users interact with your site — where they click, where they hesitate, and where they leave. Here is an honest comparison of the main options available in 2026.",
-      body:`Quantitative analytics tells you what is happening on your site. Session recording tools tell you why. Watching a real user struggle to find your contact form, or repeatedly clicking on something that is not a link, or abandoning a checkout flow at a specific step — these observations produce insights that no amount of GA4 data can surface on its own.
-
-The market for session recording tools has consolidated considerably over the past few years. Here is a clear-eyed comparison of the main options.
-
-MICROSOFT CLARITY
-
-Microsoft Clarity has become the default recommendation for most sites that do not have specific enterprise requirements, for one simple reason: it is completely free with no session or traffic limits. For a tool that would otherwise cost hundreds of pounds per month on competing platforms, this is a remarkable offer.
-
-Clarity provides heatmaps, session recordings, and a dashboard of engagement metrics including rage clicks, dead clicks, and excessive scrolling — all automatically flagged without any configuration required. The interface is clean and the insights surface quickly.
-
-The limitations are real but manageable. Data retention is 30 days. Export options are limited. The filtering and segmentation capabilities are less sophisticated than paid alternatives. For most small to mid-size sites and marketing teams, none of these limitations will matter. For enterprise use cases requiring deep segmentation, long data retention, or integration with other tools, Clarity will feel constrained.
-
-HOTJAR
-
-Hotjar was the category pioneer and remains the most widely used paid session recording tool. Its core offering — heatmaps, session recordings, and feedback surveys — is polished and well-integrated. The funnel analysis feature, which shows where users drop off across a defined sequence of pages, is particularly useful for e-commerce and lead generation sites.
-
-The pricing structure has become a point of friction. Hotjar's free tier is genuinely limited, and the paid tiers have increased significantly in recent years. For agencies managing multiple client sites, the per-site pricing model adds up quickly.
-
-Where Hotjar continues to justify its cost is in the depth of its segmentation and filtering capabilities, the quality of its funnel analysis, and the maturity of its integration ecosystem. If you need to filter recordings by traffic source, device type, user behaviour, and custom attributes simultaneously, Hotjar is more capable than Clarity.
-
-FULLSTORY AND LOGROCKET
-
-FullStory and LogRocket occupy the enterprise and developer-focused end of the market respectively. FullStory is the more established enterprise tool, with deep data capture, robust search across sessions, and integrations with major analytics and data warehouse platforms.
-
-LogRocket differentiates by combining session recording with performance monitoring and error tracking, making it particularly useful for product and engineering teams who want to correlate user experience issues with technical errors. For SaaS products where user experience and application performance are tightly connected, LogRocket is a strong choice.
-
-Both are significantly more expensive than Hotjar and are overkill for most marketing-focused use cases.
-
-THE PRACTICAL RECOMMENDATION
-
-Start with Microsoft Clarity. It is free, easy to implement via GTM, and will answer the majority of qualitative analytics questions for most sites. If you outgrow it — specifically if you need longer data retention, deeper segmentation, or funnel analysis — move to Hotjar. If you are running a SaaS product and need session recording tied to error monitoring, consider LogRocket.
-
-Implementation for all of these tools follows the same pattern: a single JavaScript snippet that can be added via GTM without any developer involvement.`,
+      category:"Analytics and Tracking",
+      intro:"Session recording tools show you exactly how real users interact with your site - where they click, where they hesitate, and where they leave. Here is an honest comparison of the main options available in 2026.",
+      body:"MICROSOFT CLARITY\n\nMicrosoft Clarity has become the default recommendation for most sites for one simple reason: it is completely free with no session or traffic limits. Clarity provides heatmaps, session recordings, and a dashboard of engagement metrics including rage clicks, dead clicks, and excessive scrolling - all automatically flagged without any configuration required. Data retention is 30 days. Export options are limited. The filtering and segmentation capabilities are less sophisticated than paid alternatives.\n\nHOTJAR\n\nHotjar was the category pioneer and remains the most widely used paid session recording tool. Its core offering - heatmaps, session recordings, and feedback surveys - is polished and well-integrated. The funnel analysis feature which shows where users drop off across a defined sequence of pages is particularly useful for e-commerce sites. The pricing structure has become a point of friction - the free tier is genuinely limited and paid tiers have increased significantly.\n\nTHE PRACTICAL RECOMMENDATION\n\nStart with Microsoft Clarity. It is free, easy to implement via GTM, and will answer the majority of qualitative analytics questions for most sites. If you outgrow it - specifically if you need longer data retention, deeper segmentation, or funnel analysis - move to Hotjar.",
     },
     {
       slug:"how-to-debug-ga4-events-in-gtm",
       title:"How to Debug GA4 Events in Google Tag Manager",
+      date:"9 June 2026",
       readTime:"6 min read",
       category:"Google Tag Manager",
       intro:"Debugging GA4 events is one of those skills that separates confident analytics practitioners from people who deploy tracking and hope for the best. Here is a systematic approach to verifying your implementation is working correctly.",
-      body:`There is a specific kind of anxiety that comes with deploying a new GA4 tracking implementation and not being certain whether it is working correctly. Data starts appearing in GA4 after 24-48 hours, but by then you have lost the ability to catch problems early. Proper debugging before you publish eliminates that uncertainty entirely.
-
-GTM AND GA4 BOTH PROVIDE DEBUGGING TOOLS — use both.
-
-GTM PREVIEW MODE
-
-GTM's built-in Preview mode is the first line of debugging. Before publishing any container changes, click Preview in the top right of the GTM interface. This opens a debug session in your browser where you can see every trigger that fires, every tag that executes, and every variable value in real time as you interact with your site.
-
-The most useful view in GTM Preview is the Tags panel. When you perform an action on your site — clicking a button, submitting a form, scrolling — you can see immediately which tags fired, which fired but failed, and which did not fire at all. A tag showing as Fired confirms GTM executed it. A tag showing as Not Fired means your trigger conditions were not met.
-
-For diagnosing trigger issues, click on any event in the left panel to see the exact state of all variables at that moment. If your trigger is supposed to fire when a button with a specific CSS class is clicked, you can verify exactly what class value GTM captured and compare it against your trigger condition.
-
-GA4 DEBUGVIEW
-
-GTM Preview confirms that tags are firing. GA4 DebugView confirms that events are arriving in GA4 with the correct parameters. These are two separate checks and both are necessary — a tag can fire in GTM but fail to send data to GA4 for several reasons.
-
-To activate DebugView, install the Google Analytics Debugger Chrome extension and enable it. Navigate to GA4, go to Configure, then DebugView. Your device will appear in the panel and you will see events arriving in real time as you interact with your site.
-
-In DebugView, click on any event to expand it and see all the parameters that arrived with it. This is where you verify that your event parameters are populated correctly — that utm_source is capturing the right value, that your conversion event is firing on the right page, that your custom dimensions are sending the expected data.
-
-COMMON ISSUES AND HOW TO FIX THEM
-
-The most frequent debugging issue is a tag that fires in GTM but shows no data in DebugView. This is almost always caused by an incorrect Measurement ID — double-check that your GA4 tag in GTM is pointing to the right property.
-
-The second most common issue is trigger conditions that are too specific. If your trigger is set to fire on a click with a specific element ID and the developer has changed that ID, the trigger will silently stop working. Regularly auditing your trigger conditions against the current state of your site prevents this class of problem.
-
-Variable values that are undefined or null in GTM Preview indicate that the data layer is not being populated correctly, or that your variable configuration is referencing the wrong key. Work with your development team to ensure the data layer push is happening at the right moment and with the correct structure.
-
-PUBLISHING WITH CONFIDENCE
-
-The correct workflow is: make changes in GTM, test in Preview mode, verify in DebugView, then publish. Skipping either of the testing steps because you are in a hurry is how tracking gaps that go unnoticed for months are created. The twenty minutes spent on proper debugging before publishing is always worth it.`,
+      body:"GTM AND GA4 BOTH PROVIDE DEBUGGING TOOLS - use both.\n\nGTM PREVIEW MODE\n\nGTM built-in Preview mode is the first line of debugging. Before publishing any container changes, click Preview in the top right of the GTM interface. This opens a debug session where you can see every trigger that fires, every tag that executes, and every variable value in real time. A tag showing as Fired confirms GTM executed it. A tag showing as Not Fired means your trigger conditions were not met.\n\nGA4 DEBUGVIEW\n\nGTM Preview confirms that tags are firing. GA4 DebugView confirms that events are arriving in GA4 with the correct parameters. To activate DebugView, install the Google Analytics Debugger Chrome extension. Navigate to GA4, go to Configure, then DebugView. You will see events arriving in real time as you interact with your site.\n\nCOMMON ISSUES AND HOW TO FIX THEM\n\nThe most frequent debugging issue is a tag that fires in GTM but shows no data in DebugView - almost always caused by an incorrect Measurement ID. The second most common issue is trigger conditions that are too specific. The correct workflow is: make changes in GTM, test in Preview mode, verify in DebugView, then publish.",
     },
     {
       slug:"what-is-a-data-layer",
       title:"What Is a Data Layer and Do You Actually Need One?",
+      date:"10 June 2026",
       readTime:"6 min read",
       category:"Google Tag Manager",
-      intro:"The data layer is one of the most powerful concepts in modern web analytics — and one of the most frequently misunderstood. Here is a clear explanation of what it is, what it enables, and when you genuinely need one.",
-      body:`If you have spent any time configuring Google Tag Manager for anything beyond basic pageview tracking, you will have encountered the data layer. It is referenced in GTM documentation, recommended in analytics guides, and implemented by varying degrees of correctness across most professional web analytics setups. But what it actually is, and why it matters, is often explained poorly.
-
-THE SIMPLE EXPLANATION
-
-The data layer is a JavaScript array that lives on your website and acts as a communication channel between your website and GTM. It is a structured container for information about what is happening on the page — information that GTM can then read and pass to your analytics and marketing tags.
-
-In code, it looks like this: window.dataLayer = window.dataLayer || []; followed by dataLayer.push() calls that add information at specific moments.
-
-The key word is structured. Without a data layer, GTM has to scrape information from the page — reading text from DOM elements, parsing URLs, inferring values from CSS classes. This works, but it is fragile. A developer changes a button label or a page layout, and your tracking breaks silently.
-
-With a data layer, your developers explicitly push the information GTM needs at exactly the right moments, in a consistent structure that GTM can reliably read. The tracking becomes decoupled from the page's visual structure.
-
-WHAT THE DATA LAYER ENABLES
-
-The practical difference becomes clear with a concrete example. Suppose you want to track e-commerce transactions in GA4 — specifically, what products were purchased, at what price, in what quantity. Without a data layer, you would need GTM to somehow extract this information from the order confirmation page's HTML. This is fragile and often impossible if the page does not display all the required fields visually.
-
-With a data layer, your developers push a purchase event at the moment the transaction completes, containing the complete order data in a structured format. GTM reads it reliably every time, regardless of what the page looks like.
-
-The same principle applies to user properties, product impressions, form field values, and any other information that exists in your application logic but may not be visible in the page's HTML.
-
-DO YOU ACTUALLY NEED ONE?
-
-For basic tracking — pageviews, scroll depth, click events on visible elements, form submissions — a data layer is not strictly necessary. GTM's built-in variables and DOM-scraping capabilities are sufficient and the implementation is simpler.
-
-For anything involving transactional data, user account information, product data, or events that happen in JavaScript without a corresponding DOM change, a data layer is not optional — it is the only reliable way to get that information into GTM.
-
-The practical test is this: is the information you need to track visible somewhere on the page in a stable, predictable location? If yes, GTM can probably get it without a data layer. If the information exists in your application's backend or JavaScript logic but is not rendered to the page in a stable way, you need a data layer push.
-
-IMPLEMENTING A DATA LAYER CORRECTLY
-
-The data layer should be initialised — window.dataLayer = window.dataLayer || [] — in the page's head section, before the GTM snippet. This ensures GTM loads into an existing data layer rather than creating a new one.
-
-Data layer pushes should happen at meaningful moments: page load for page-level data, user interactions for event data, and asynchronous operations for data that arrives after the initial page load. Work with your development team to define a data layer specification before implementation begins — retrofitting a data layer onto an existing site is significantly harder than designing it in from the start.`,
+      intro:"The data layer is one of the most powerful concepts in modern web analytics - and one of the most frequently misunderstood. Here is a clear explanation of what it is, what it enables, and when you genuinely need one.",
+      body:"THE SIMPLE EXPLANATION\n\nThe data layer is a JavaScript array that lives on your website and acts as a communication channel between your website and GTM. It is a structured container for information about what is happening on the page that GTM can then read and pass to your analytics and marketing tags.\n\nIn code it looks like this: window.dataLayer = window.dataLayer || []; followed by dataLayer.push() calls that add information at specific moments.\n\nWHAT THE DATA LAYER ENABLES\n\nWithout a data layer GTM has to scrape information from the page - reading text from DOM elements, parsing URLs, inferring values from CSS classes. This is fragile. A developer changes a button label and your tracking breaks silently. With a data layer your developers explicitly push the information GTM needs at exactly the right moments in a consistent structure that GTM can reliably read.\n\nDO YOU ACTUALLY NEED ONE?\n\nFor basic tracking - pageviews, scroll depth, click events on visible elements - a data layer is not strictly necessary. For anything involving transactional data, user account information, product data, or events that happen in JavaScript without a corresponding DOM change, a data layer is not optional - it is the only reliable way to get that information into GTM.\n\nIMPLEMENTING A DATA LAYER CORRECTLY\n\nThe data layer should be initialised in the page head section before the GTM snippet. Work with your development team to define a data layer specification before implementation begins - retrofitting a data layer onto an existing site is significantly harder than designing it in from the start.",
     }
   ];
 
   if (article) {
     const post = posts.find(p=>p.slug===article);
     return (
-      <div>
+      <PageWrapper onBack={()=>setArticle(null)} accentColor={ACCENT}>
         <div style={{marginBottom:8}}>
           <span style={{fontSize:11,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".08em"}}>{post.category}</span>
         </div>
         <h1 style={{fontSize:22,fontWeight:600,color:"#e8e8e0",marginBottom:12,lineHeight:1.4}}>{post.title}</h1>
-        <div style={{display:"flex",gap:16,marginBottom:28}}>          <span style={{fontSize:12,color:"#333",fontFamily:"IBM Plex Mono,monospace"}}>{post.readTime}</span>
+        <div style={{display:"flex",gap:16,marginBottom:28}}>
+          <span style={{fontSize:12,color:"#444",fontFamily:"IBM Plex Mono,monospace"}}>{post.date}</span>
+          <span style={{fontSize:12,color:"#333",fontFamily:"IBM Plex Mono,monospace"}}>{post.readTime}</span>
         </div>
-        <p style={{fontSize:15,color:"#888",lineHeight:1.9,marginBottom:24,borderLeft:`2px solid ${ACCENT}`,paddingLeft:16,fontStyle:"italic"}}>{post.intro}</p>
+        <p style={{fontSize:15,color:"#888",lineHeight:1.9,marginBottom:24,borderLeft:"2px solid "+ACCENT,paddingLeft:16,fontStyle:"italic"}}>{post.intro}</p>
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
           {post.body.split("\n\n").map((para,i)=>(
             para.trim() === para.trim().toUpperCase() && para.length < 80
@@ -1689,14 +1377,12 @@ Data layer pushes should happen at meaningful moments: page load for page-level 
               : <p key={i} style={{fontSize:14,color:"#888",lineHeight:1.9}}>{para}</p>
           ))}
         </div>
-        <BottomAdUnit />
-        <SiteFooter onNavigate={(p) => { if(p === "blog") { setArticle(null); setTimeout(()=>{ const el=document.querySelector(".main-scroll"); if(el) el.scrollTop=0; window.scrollTo(0,0); },0); } else if(onNavigate) onNavigate(p); }} />
-      </div>
+      </PageWrapper>
     );
   }
 
   return (
-    <div>
+    <PageWrapper onBack={onBack} accentColor={ACCENT}>
       <div style={{marginBottom:28}}>
         <div style={{fontSize:11,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".1em",marginBottom:8,textTransform:"uppercase"}}>Blog</div>
         <h1 style={{fontSize:26,fontWeight:600,color:"#e8e8e0",marginBottom:8}}>Paid media insights</h1>
@@ -1707,103 +1393,105 @@ Data layer pushes should happen at meaningful moments: page load for page-level 
           <div key={post.slug} className="card" style={{cursor:"pointer",transition:"border-color .15s"}}
             onMouseEnter={e=>e.currentTarget.style.borderColor=ACCENT}
             onMouseLeave={e=>e.currentTarget.style.borderColor="#1e1e1e"}
-            onClick={()=>{ setArticle(post.slug); setTimeout(()=>{ const el=document.querySelector(".main-scroll"); if(el) el.scrollTop=0; window.scrollTo(0,0); },0); }}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,flexWrap:"wrap"}}>
-              <div style={{flex:1}}>
-                <span style={{fontSize:10,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".08em",display:"block",marginBottom:6}}>{post.category}</span>
-                <h2 style={{fontSize:15,fontWeight:500,color:"#e8e8e0",marginBottom:8,lineHeight:1.4}}>{post.title}</h2>
-                <p style={{fontSize:13,color:"#555",lineHeight:1.7}}>{post.intro}</p>
-              </div>
+            onClick={()=>setArticle(post.slug)}>
+            <div style={{flex:1}}>
+              <span style={{fontSize:10,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".08em",display:"block",marginBottom:6}}>{post.category}</span>
+              <h2 style={{fontSize:15,fontWeight:500,color:"#e8e8e0",marginBottom:8,lineHeight:1.4}}>{post.title}</h2>
+              <p style={{fontSize:13,color:"#555",lineHeight:1.7}}>{post.intro}</p>
             </div>
             <div style={{display:"flex",gap:16,marginTop:12,paddingTop:12,borderTop:"1px solid #1a1a1a",alignItems:"center",justifyContent:"space-between"}}>
-              <div style={{display:"flex",gap:12}}>                <span style={{fontSize:11,color:"#333",fontFamily:"IBM Plex Mono,monospace"}}>{post.readTime}</span>
+              <div style={{display:"flex",gap:12}}>
+                <span style={{fontSize:11,color:"#333",fontFamily:"IBM Plex Mono,monospace"}}>{post.date}</span>
+                <span style={{fontSize:11,color:"#333",fontFamily:"IBM Plex Mono,monospace"}}>{post.readTime}</span>
               </div>
-              <span style={{fontSize:11,color:ACCENT,fontFamily:"IBM Plex Mono,monospace"}}>Read article →</span>
+              <span style={{fontSize:11,color:ACCENT,fontFamily:"IBM Plex Mono,monospace"}}>Read article</span>
             </div>
           </div>
         ))}
       </div>
-      <BottomAdUnit />
-      <SiteFooter onNavigate={onNavigate} />
+    </PageWrapper>
+  );
+}
+
+function AdStackContactPage({ onBack }) {
+  return (
+    <div>
+      <div style={{marginBottom:28}}>
+        <div style={{fontSize:11,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".1em",marginBottom:8,textTransform:"uppercase"}}>Contact</div>
+        <h1 style={{fontSize:26,fontWeight:600,color:"#e8e8e0",marginBottom:12,lineHeight:1.3}}>Get in Touch</h1>
+      </div>
+      <div className="card" style={{marginBottom:16,lineHeight:1.9}}>
+        <p style={{fontSize:14,color:"#888"}}>
+          Whether you have a question, a suggestion, or want to discuss advertising - we would love to hear from you. Reach us at <a href="mailto:contact.jwgroup@proton.me" style={{color:ACCENT}}>contact.jwgroup@proton.me</a>.
+        </p>
+      </div>
+      {[
+        { label:"General Enquiries", body:"Questions about ADSTACK tools, feedback or suggestions? We are always working to improve our toolkit for PPC professionals. Email contact.jwgroup@proton.me and we will get back to you as soon as possible." },
+        { label:"Advertising & Partnerships", body:"ADSTACK reaches a targeted audience of PPC managers, paid media specialists and digital marketing professionals. We welcome advertising from martech companies, SaaS tools, training providers and digital marketing services. Contact us at contact.jwgroup@proton.me to discuss opportunities." },
+      ].map((sec, i) => (
+        <div key={i} className="card" style={{marginBottom:12,borderColor:"#1e1e1e"}}>
+          <div style={{fontSize:13,fontWeight:600,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".04em",marginBottom:10,textTransform:"uppercase"}}>{"0" + (i+1).toString().slice(-2)} - {sec.label}</div>
+          <p style={{fontSize:14,color:"#888",lineHeight:1.85}}>{sec.body}</p>
+        </div>
+      ))}
     </div>
   );
 }
 
+function AdStackTermsPage({ onBack }) {
+  const sections = [
+    { title:"Acceptance of Terms", body:"By using ADSTACK (adstack.co.uk) you agree to these Terms of Service. If you do not agree, please do not use our website." },
+    { title:"Use of Tools", body:"ADSTACK provides free paid media tools for personal and professional use. You may not resell, redistribute or sublicense access to our tools without written permission." },
+    { title:"Accuracy", body:"Our tools are provided in good faith for informational purposes. Always verify outputs before using them in live campaigns. We accept no liability for campaign performance resulting from use of our tools." },
+    { title:"Advertising", body:"ADSTACK displays third-party advertisements including those served by Google AdSense. We are not responsible for the content of third-party ads." },
+    { title:"Intellectual Property", body:"ADSTACK and all associated tools, content and branding are the intellectual property of JW Group. All rights reserved." },
+    { title:"Limitation of Liability", body:"ADSTACK and its operators shall not be liable for any damages arising from your use of our tools or website." },
+    { title:"Changes to Terms", body:"We may update these terms at any time. Continued use of ADSTACK constitutes acceptance of any revised terms." },
+    { title:"Governing Law", body:"These terms are governed by the laws of England and Wales." },
+    { title:"Contact", body:"Questions about these Terms of Service? Contact us at contact.jwgroup@proton.me." },
+  ];
+  return (
+    <div>
+      <div style={{marginBottom:28}}>
+        <div style={{fontSize:11,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".1em",marginBottom:8,textTransform:"uppercase"}}>Legal</div>
+        <h1 style={{fontSize:26,fontWeight:500,color:"#e8e8e0",marginBottom:8,lineHeight:1.3}}>Terms of Service</h1>
+        <p style={{fontSize:13,color:"#555"}}>Last updated: June 2025 - adstack.co.uk</p>
+      </div>
+      {sections.map((sec, i) => (
+        <div key={i} className="card" style={{marginBottom:12,borderColor:"#1e1e1e"}}>
+          <div style={{fontSize:13,fontWeight:600,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".04em",marginBottom:10,textTransform:"uppercase"}}>{"0" + (i+1).toString().slice(-2)} - {sec.title}</div>
+          <p style={{fontSize:14,color:"#888",lineHeight:1.85}}>{sec.body}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
 
-/* ──────────────────────────────────── PRIVACY POLICY PAGE ── */
 function AdStackPrivacyPage({ onBack }) {
   const sections = [
     {
       title: "Overview",
-      body: `This Privacy Policy explains how ADSTACK ("we", "us", "our") collects, uses and protects information when you visit adstack.co.uk (the "Site"). By using the Site you agree to the practices described in this policy. If you do not agree, please discontinue use of the Site.
-
-We are committed to ensuring your privacy is protected. This policy is effective from June 2026 and may be updated periodically. We will notify you of significant changes by updating the date at the top of this page.`
+      body: "This Privacy Policy explains how ADSTACK collects, uses and protects information when you visit adstack.co.uk. By using the Site you agree to the practices described in this policy."
     },
     {
       title: "Information We Collect",
-      body: `We do not require you to create an account or provide personal information to use ADSTACK. However, the following information may be collected:
-
-Automatically collected data: When you visit the Site, standard web server logs and analytics tools may record your IP address, browser type, operating system, referring URLs, pages visited and time spent on the Site. This data is used in aggregate form to understand how the Site is used and to improve it.
-
-Tool inputs: ADSTACK provides AI-powered paid media tools including ad creative analyzer, keyword generator, UTM builder, campaign naming convention generator, ad copy generator and audience planner. Any text you enter into these tools is sent to the Anthropic API to generate a response and is not stored on our servers. We do not retain, log or analyse the content of your tool inputs.
-
-Email address: If you choose to subscribe to our newsletter, we collect your email address for the sole purpose of sending you that newsletter. We do not share your email address with third parties.`
-    },
-    {
-      title: "How We Use Your Information",
-      body: `We use the information collected in the following ways:
-
-To operate and improve the Site and its tools. To understand aggregate usage patterns and optimise the user experience. To send you our newsletter if you have subscribed. To serve relevant advertising through third-party ad networks including Google AdSense.
-
-We do not sell, trade or rent your personal information to third parties. We do not use your tool inputs for any purpose other than generating the requested output via the Anthropic API.`
+      body: "We do not require you to create an account or provide personal information to use ADSTACK. Analytics tools may record your IP address, browser type, pages visited and time spent on the Site in aggregate form. Any text you enter into our AI tools is sent to the Anthropic API to generate a response and is not stored on our servers."
     },
     {
       title: "Third-Party Services",
-      body: `ADSTACK uses the following third-party services which may collect data independently under their own privacy policies:
-
-Anthropic API: Tool inputs are processed by Anthropic's Claude API to generate AI responses. Anthropic's privacy policy applies to this processing. Please review Anthropic's privacy policy at anthropic.com/privacy.
-
-Google AdSense: We display advertisements served by Google AdSense. Google may use cookies and similar technologies to serve ads based on your prior visits to this or other websites. You can opt out of personalised advertising by visiting Google's Ad Settings at adssettings.google.com.
-
-Google Analytics: We may use Google Analytics to understand site usage. Google Analytics collects anonymised usage data. You can opt out using the Google Analytics Opt-out Browser Add-on.
-
-Vercel: The Site is hosted on Vercel's infrastructure. Vercel may collect standard server logs. Please review Vercel's privacy policy at vercel.com/legal/privacy-policy.`
+      body: "ADSTACK uses the Anthropic API to power our AI tools. We may display advertisements served by Google AdSense. We may use Google Analytics to understand site usage in aggregate form. The Site is hosted on Vercel."
     },
     {
       title: "Cookies",
-      body: `The Site uses cookies in the following ways:
-
-Essential cookies: Required for the Site to function correctly. These cannot be disabled.
-
-Analytics cookies: Used to collect anonymised information about how visitors use the Site. You can disable these in your browser settings.
-
-Advertising cookies: Google AdSense may set cookies to serve personalised advertisements. You can manage your ad personalisation preferences at adssettings.google.com.
-
-You can control cookie settings through your browser. Note that disabling certain cookies may affect the functionality of the Site.`
-    },
-    {
-      title: "Data Retention",
-      body: `We retain data only for as long as necessary for the purposes described in this policy. Newsletter subscriber email addresses are retained until you unsubscribe. Aggregate analytics data may be retained for up to 26 months. Tool input data is not retained — it is processed in real time and discarded.`
+      body: "Essential cookies are required for the Site to function. Analytics and advertising cookies may be set by third-party services. You can control cookie settings through your browser."
     },
     {
       title: "Your Rights",
-      body: `Under UK data protection law (UK GDPR) you have the following rights:
-
-The right to access personal data we hold about you. The right to correct inaccurate personal data. The right to erasure of your personal data. The right to restrict processing of your personal data. The right to data portability. The right to object to processing.
-
-To exercise any of these rights, please contact us at contact.adstack@gmail.com. We will respond to all requests within 30 days.`
-    },
-    {
-      title: "Children's Privacy",
-      body: `ADSTACK is not directed at children under the age of 13. We do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us and we will take steps to delete it promptly.`
-    },
-    {
-      title: "Changes to This Policy",
-      body: `We may update this Privacy Policy from time to time. We will post any changes on this page with an updated effective date. We encourage you to review this policy periodically. Your continued use of the Site after any changes constitutes your acceptance of the revised policy.`
+      body: "Under UK GDPR you have the right to access, correct, or delete your personal data. To exercise these rights, contact us at contact.jwgroup@proton.me."
     },
     {
       title: "Contact Us",
-      body: `If you have any questions about this Privacy Policy or our data practices, please contact us at contact.adstack@gmail.com. We are based in the United Kingdom.`
+      body: "If you have any questions about this Privacy Policy, please contact us at contact.jwgroup@proton.me. We are based in the United Kingdom."
     },
   ];
 
@@ -1812,11 +1500,11 @@ To exercise any of these rights, please contact us at contact.adstack@gmail.com.
       <div style={{marginBottom:28}}>
         <div style={{fontSize:11,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".1em",marginBottom:8,textTransform:"uppercase"}}>Privacy Policy</div>
         <h1 style={{fontSize:26,fontWeight:500,color:"#e8e8e0",marginBottom:8,lineHeight:1.3}}>Privacy Policy</h1>
-        <p style={{fontSize:13,color:"#555"}}>Effective date: June 2026 · adstack.co.uk</p>
+        <p style={{fontSize:13,color:"#555"}}>Effective date: June 2026 - adstack.co.uk</p>
       </div>
       {sections.map((sec, i) => (
         <div key={i} className="card" style={{marginBottom:12,borderColor:"#1e1e1e"}}>
-          <div style={{fontSize:13,fontWeight:600,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".04em",marginBottom:10,textTransform:"uppercase"}}>{"0" + (i+1).toString().slice(-2)} — {sec.title}</div>
+          <div style={{fontSize:13,fontWeight:600,color:ACCENT,fontFamily:"IBM Plex Mono,monospace",letterSpacing:".04em",marginBottom:10,textTransform:"uppercase"}}>{"0" + (i+1).toString().slice(-2)} - {sec.title}</div>
           {sec.body.split("\n\n").map((para, j) => (
             <p key={j} style={{fontSize:14,color:"#888",lineHeight:1.85,marginBottom: j < sec.body.split("\n\n").length-1 ? 10 : 0}}>{para}</p>
           ))}
@@ -1829,10 +1517,11 @@ To exercise any of these rights, please contact us at contact.adstack@gmail.com.
 /* ──────────────────────────────────── SITE FOOTER ── */
 function SiteFooter({ onNavigate }) {
   const links = [
-    { label:"Blog",        icon:"ti-pencil",      page:"blog" },
-    { label:"Advertising", icon:"ti-ad-2",         page:"advertising" },
-    { label:"About Us",    icon:"ti-info-circle",  page:"about" },
-    { label:"Privacy Policy", icon:"ti-shield",       page:"privacy" },
+    { label:"Blog",             icon:"ti-pencil",      page:"blog" },
+    { label:"Contact",          icon:"ti-ad-2",        page:"contact" },
+    { label:"About Us",         icon:"ti-info-circle", page:"about" },
+    { label:"Privacy Policy",   icon:"ti-shield",      page:"privacy" },
+    { label:"Terms of Service", icon:"ti-file-text",   page:"terms" },
   ];
   return (
     <div style={{ marginTop:40, paddingTop:20, borderTop:"1px solid #1a1a1a" }}>
@@ -1841,50 +1530,44 @@ function SiteFooter({ onNavigate }) {
           <button key={l.label} onClick={()=>onNavigate(l.page)} style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"7px 16px", background:"#141414", border:"1px solid #1e1e1e", borderRadius:4, color:"#555", fontSize:12, fontFamily:"IBM Plex Mono,monospace", cursor:"pointer", transition:"all .15s", letterSpacing:".04em" }}
             onMouseEnter={e => { e.currentTarget.style.borderColor=ACCENT; e.currentTarget.style.color=ACCENT; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor="#1e1e1e"; e.currentTarget.style.color="#555"; }}>
-            <i className={`ti ${l.icon}`} style={{ fontSize:13 }} />
+            <i className={"ti " + l.icon} style={{ fontSize:13 }} />
             {l.label}
           </button>
         ))}
       </div>
       <div style={{ textAlign:"center", fontFamily:"IBM Plex Mono,monospace", fontSize:10, color:"#2a2a2a", paddingBottom:20, letterSpacing:".06em" }}>
-        © {new Date().getFullYear()} ADSTACK · adstack.co.uk
+        {new Date().getFullYear()} ADSTACK - adstack.co.uk
       </div>
     </div>
   );
 }
 
-
 /* ──────────────────────────────────── SIDEBAR CONTENTS ── */
-function SidebarContents({ activeTool, setActiveTool, savedCount, onClose }) {
+function SidebarContents({ activeTool, setActiveTool, savedCount, onClose, onToolSelect }) {
   return (
     <>
-      {/* Logo block — only shown in mobile drawer, hidden on desktop sidebar */}
       {onClose && (
         <div style={{ padding:"16px 16px 10px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #1a1a1a" }}>
           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
             <div style={{ width:26,height:26,background:ACCENT,borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>
-              <svg width="14" height="12" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="1" y="0.5" width="14" height="3" rx="1" fill="#0d0d0d"/>
-                <rect x="1" y="5.5" width="10" height="3" rx="1" fill="#0d0d0d"/>
-                <rect x="1" y="10.5" width="6" height="3" rx="1" fill="#0d0d0d"/>
-              </svg>
+              <i className="ti ti-chart-dots-3" style={{ fontSize:14, color:"#0d0d0d" }} />
             </div>
             <div>
               <div style={{ fontFamily:"IBM Plex Mono",fontSize:13,fontWeight:500,color:"#e8e8e0",letterSpacing:".04em" }}>ADSTACK</div>
               <div style={{ fontSize:9,color:"#444",letterSpacing:".08em" }}>PAID MEDIA TOOLKIT</div>
             </div>
           </div>
-          <button onClick={onClose} style={{ background:"none",border:"none",color:"#555",cursor:"pointer",fontSize:18,padding:"4px",lineHeight:1 }}>×</button>
+          <button onClick={onClose} style={{ background:"none",border:"none",color:"#555",cursor:"pointer",fontSize:18,padding:"4px",lineHeight:1 }}>x</button>
         </div>
       )}
       <div style={{ padding:"10px 16px 8px",fontSize:10,letterSpacing:".1em",color:"#333",textTransform:"uppercase" }}>Tools</div>
       {TOOLS.map(tool=>(
         <button key={tool.id} className="sidebar-tool-btn"
-          onClick={()=>{ setActiveTool(tool.id); onClose&&onClose(); }}
-          style={{ borderLeft:`2px solid ${activeTool===tool.id?ACCENT:"transparent"}`, background:activeTool===tool.id?"#141414":"transparent" }}>
-          <i className={`ti ${tool.icon}`} style={{ fontSize:15, color:activeTool===tool.id?ACCENT:"#444", flexShrink:0 }} />
+          onClick={()=>{ setActiveTool(tool.id); onToolSelect&&onToolSelect(); onClose&&onClose(); }}
+          style={{ borderLeft:"2px solid " + (activeTool===tool.id ? ACCENT : "transparent"), background:activeTool===tool.id ? "#141414" : "transparent" }}>
+          <i className={"ti " + tool.icon} style={{ fontSize:15, color:activeTool===tool.id ? ACCENT : "#444", flexShrink:0 }} />
           <div>
-            <div style={{ fontSize:12,color:activeTool===tool.id?"#e8e8e0":"#666",fontWeight:activeTool===tool.id?500:400 }}>
+            <div style={{ fontSize:12,color:activeTool===tool.id ? "#e8e8e0" : "#666",fontWeight:activeTool===tool.id ? 500 : 400 }}>
               {tool.label}
               {tool.id==="workspace"&&savedCount>0&&(
                 <span style={{ marginLeft:6,fontSize:9,fontFamily:"IBM Plex Mono",color:ACCENT,background:"#1a1200",padding:"1px 5px",borderRadius:2 }}>{savedCount}</span>
@@ -1896,7 +1579,7 @@ function SidebarContents({ activeTool, setActiveTool, savedCount, onClose }) {
       ))}
       <div style={{ margin:"16px 16px 0",paddingTop:14,borderTop:"1px solid #1a1a1a" }}>
         <div style={{ fontSize:10,letterSpacing:".08em",color:"#2a2a2a",marginBottom:6,textTransform:"uppercase" }}>Powered by</div>
-        <div style={{ fontFamily:"IBM Plex Mono",fontSize:11,color:"#333" }}>Claude Sonnet 4</div>
+        <div style={{ fontFamily:"IBM Plex Mono",fontSize:11,color:"#333" }}>Claude Sonnet 4.6</div>
       </div>
       <AdUnit />
     </>
@@ -1908,27 +1591,13 @@ export default function App() {
   const [activeTool, setActiveTool]  = useState("analyzer");
   const [savedConventions, setSaved] = useState([]);
   const [drawerOpen, setDrawerOpen]  = useState(false);
-  const [page, setPage]              = useState(null); // null = tools view
+  const [page, setPage]              = useState(null);
   const isMobile                     = useIsMobile();
 
   const handleSave   = conv => setSaved(p=>[...p,conv]);
   const handleDelete = idx  => setSaved(p=>p.filter((_,i)=>i!==idx));
   const handleNav    = p   => { setPage(p); setDrawerOpen(false); };
   const handleBack   = ()  => setPage(null);
-
-  // ── Dynamic meta tags & URLs ──
-  const toolMeta = TOOL_META[activeTool] || {};
-  const pageMeta = page ? PAGE_META[page] : null;
-  const currentMeta = pageMeta || (page ? SITE_DEFAULT : toolMeta);
-  useDocumentMeta(currentMeta.title || SITE_DEFAULT.title, currentMeta.desc || SITE_DEFAULT.desc);
-  usePushState(pageMeta ? pageMeta.path : (toolMeta.path || "/"));
-
-  // Scroll to top whenever page or tool changes
-  useEffect(() => {
-    const el = document.querySelector('.main-scroll');
-    if (el) el.scrollTop = 0;
-    window.scrollTo(0, 0);
-  }, [page, activeTool]);
 
   const activeMeta = TOOLS.find(t=>t.id===activeTool);
 
@@ -1949,16 +1618,11 @@ export default function App() {
       <style>{styles}</style>
       <div style={{ minHeight:"100vh", background:"#0d0d0d", display:"flex", flexDirection:"column" }}>
 
-        {/* ── Desktop header ── */}
         {!isMobile && (
           <div style={{ borderBottom:"1px solid #1a1a1a",padding:"14px 28px",display:"flex",alignItems:"center",justifyContent:"space-between",background:"#0a0a0a",flexShrink:0 }}>
-            <div style={{ display:"flex",alignItems:"center",gap:12,cursor:"pointer" }} onClick={handleBack}>
-              <div style={{ width:28,height:28,background:ACCENT,borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>
-                <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="1" y="0.5" width="14" height="3" rx="1" fill="#0d0d0d"/>
-                  <rect x="1" y="5.5" width="10" height="3" rx="1" fill="#0d0d0d"/>
-                  <rect x="1" y="10.5" width="6" height="3" rx="1" fill="#0d0d0d"/>
-                </svg>
+            <div style={{ display:"flex",alignItems:"center",gap:12 }}>
+              <div style={{ width:28,height:28,background:ACCENT,borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center" }}>
+                <i className="ti ti-chart-dots-3" style={{ fontSize:16,color:"#0d0d0d" }} />
               </div>
               <div>
                 <div style={{ fontFamily:"IBM Plex Mono",fontSize:15,fontWeight:500,color:"#e8e8e0",letterSpacing:".04em" }}>ADSTACK</div>
@@ -1966,33 +1630,24 @@ export default function App() {
               </div>
             </div>
             <div style={{ display:"flex",alignItems:"center",gap:16 }}>
-              {!page && activeTool==="workspace"&&savedConventions.length>0&&(
+              {activeTool==="workspace"&&savedConventions.length>0&&(
                 <span style={{ fontFamily:"IBM Plex Mono",fontSize:11,color:ACCENT }}>{savedConventions.length} saved</span>
               )}
-              <div style={{ fontFamily:"IBM Plex Mono",fontSize:11,color:"#333",letterSpacing:".06em" }}>
-                {page ? page.toUpperCase() : activeMeta?.label.toUpperCase()}
-              </div>
+              <div style={{ fontFamily:"IBM Plex Mono",fontSize:11,color:"#333",letterSpacing:".06em" }}>{activeMeta?.label.toUpperCase()}</div>
             </div>
           </div>
         )}
 
-        {/* ── Mobile header ── */}
         {isMobile && (
           <div className="mobile-header" style={{ borderBottom:"1px solid #1a1a1a",padding:"12px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",background:"#0a0a0a",flexShrink:0 }}>
-            <div style={{ display:"flex",alignItems:"center",gap:10,cursor:"pointer" }} onClick={handleBack}>
-              <div style={{ width:26,height:26,background:ACCENT,borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>
-                <svg width="14" height="12" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="1" y="0.5" width="14" height="3" rx="1" fill="#0d0d0d"/>
-                  <rect x="1" y="5.5" width="10" height="3" rx="1" fill="#0d0d0d"/>
-                  <rect x="1" y="10.5" width="6" height="3" rx="1" fill="#0d0d0d"/>
-                </svg>
+            <div style={{ display:"flex",alignItems:"center",gap:10 }}>
+              <div style={{ width:26,height:26,background:ACCENT,borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center" }}>
+                <i className="ti ti-chart-dots-3" style={{ fontSize:14,color:"#0d0d0d" }} />
               </div>
-              <div>
-                <div style={{ fontFamily:"IBM Plex Mono",fontSize:13,fontWeight:500,color:"#e8e8e0",letterSpacing:".04em" }}>ADSTACK</div>
-              </div>
+              <div style={{ fontFamily:"IBM Plex Mono",fontSize:13,fontWeight:500,color:"#e8e8e0",letterSpacing:".04em" }}>ADSTACK</div>
             </div>
             <div style={{ display:"flex",alignItems:"center",gap:12 }}>
-              <span style={{ fontSize:12,color:"#555" }}>{page || activeMeta?.label}</span>
+              <span style={{ fontSize:12,color:"#555" }}>{activeMeta?.label}</span>
               <button onClick={()=>setDrawerOpen(true)} style={{ background:"none",border:"1px solid #2a2a2a",borderRadius:4,color:"#888",cursor:"pointer",padding:"6px 10px",display:"flex",alignItems:"center",gap:6,fontSize:12 }}>
                 <i className="ti ti-menu-2" style={{ fontSize:14 }} /> Tools
               </button>
@@ -2000,65 +1655,50 @@ export default function App() {
           </div>
         )}
 
-        {/* ── Mobile drawer ── */}
         {drawerOpen && (
           <div className="mobile-drawer">
             <div className="mobile-drawer-overlay" onClick={()=>setDrawerOpen(false)} />
             <div className="mobile-drawer-panel">
-              <SidebarContents
-                activeTool={activeTool}
-                setActiveTool={t=>{setActiveTool(t);setPage(null);}}
-                savedCount={savedConventions.length}
-                onClose={()=>setDrawerOpen(false)}
-              />
+              <SidebarContents activeTool={activeTool} setActiveTool={setActiveTool} savedCount={savedConventions.length} onClose={()=>setDrawerOpen(false)} onToolSelect={()=>setPage(null)} />
             </div>
           </div>
         )}
 
-        {/* ── Body ── */}
         <div style={{ display:"flex", flex:1, overflow:"hidden" }}>
-          {/* Desktop sidebar */}
           {!isMobile && (
             <div className="sidebar">
-              <SidebarContents
-                activeTool={activeTool}
-                setActiveTool={t=>{setActiveTool(t);setPage(null);}}
-                savedCount={savedConventions.length}
-                onClose={null}
-              />
+              <SidebarContents activeTool={activeTool} setActiveTool={setActiveTool} savedCount={savedConventions.length} onClose={null} onToolSelect={()=>setPage(null)} />
             </div>
           )}
 
-          {/* Main content */}
           <div className="main-scroll">
             <div className="main-inner">
               {page ? (
                 <>
                   <InlineAdUnit />
                   <div style={{ marginTop:24 }}>
-                    {page==="blog"        && <AdStackBlogPage key={page} onBack={handleBack} onNavigate={handleNav} />}
-                    {page==="advertising" && <AdStackAdvertisingPage onBack={handleBack} />}
-                    
+                    {page==="blog"        && <AdStackBlogPage onBack={handleBack} />}
                     {page==="about"       && <AdStackAboutPage onBack={handleBack} />}
                     {page==="privacy"     && <AdStackPrivacyPage onBack={handleBack} />}
+                    {page==="contact"     && <AdStackContactPage onBack={handleBack} />}
+                    {page==="terms"       && <AdStackTermsPage onBack={handleBack} />}
                   </div>
-                  {page !== "blog" && <BottomAdUnit />}
-                  {page !== "blog" && <SiteFooter onNavigate={handleNav} />}
+                  <BottomAdUnit />
+                  <SiteFooter onNavigate={handleNav} />
                   {isMobile && <div style={{ height:32 }} />}
                 </>
               ) : (
                 <>
-                  <div style={{ marginBottom:22 }}>
+                  <InlineAdUnit />
+                  <div style={{ marginBottom:22, marginTop:24 }}>
                     <h1 className="tool-title" style={{ fontSize:18,fontWeight:500,color:"#e8e8e0",marginBottom:4 }}>{activeMeta?.label}</h1>
                     <p style={{ fontSize:13,color:"#555" }}>{activeMeta?.desc}</p>
                   </div>
-                  <InlineAdUnit />
                   <div style={{ marginTop:24 }}>
-                  {toolComponents[activeTool]}
+                    {toolComponents[activeTool]}
                   </div>
                   <BottomAdUnit />
                   <SiteFooter onNavigate={handleNav} />
-                  {/* Mobile bottom padding so content clears thumb zone */}
                   {isMobile && <div style={{ height:32 }} />}
                 </>
               )}
