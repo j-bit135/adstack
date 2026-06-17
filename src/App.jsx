@@ -62,7 +62,8 @@ function usePushState(path) {
 
 
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css');
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { -webkit-text-size-adjust: 100%; }
   body, #root { background: #0d0d0d; color: #e8e8e0; font-family: 'IBM Plex Sans', sans-serif; }
@@ -1550,8 +1551,12 @@ function SidebarContents({ activeTool, setActiveTool, savedCount, onClose, onToo
         <div style={{ padding:"16px 16px 10px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #1a1a1a" }}>
           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
             <div style={{ width:26,height:26,background:ACCENT,borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>
-              <i className="ti ti-chart-dots-3" style={{ fontSize:14, color:"#0d0d0d" }} />
-            </div>
+                <svg width="14" height="12" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="0.5" width="14" height="3" rx="1" fill="#0d0d0d"/>
+                  <rect x="1" y="5.5" width="10" height="3" rx="1" fill="#0d0d0d"/>
+                  <rect x="1" y="10.5" width="6" height="3" rx="1" fill="#0d0d0d"/>
+                </svg>
+              </div>
             <div>
               <div style={{ fontFamily:"IBM Plex Mono",fontSize:13,fontWeight:500,color:"#e8e8e0",letterSpacing:".04em" }}>ADSTACK</div>
               <div style={{ fontSize:9,color:"#444",letterSpacing:".08em" }}>PAID MEDIA TOOLKIT</div>
@@ -1621,8 +1626,12 @@ export default function App() {
         {!isMobile && (
           <div style={{ borderBottom:"1px solid #1a1a1a",padding:"14px 28px",display:"flex",alignItems:"center",justifyContent:"space-between",background:"#0a0a0a",flexShrink:0 }}>
             <div style={{ display:"flex",alignItems:"center",gap:12 }}>
-              <div style={{ width:28,height:28,background:ACCENT,borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center" }}>
-                <i className="ti ti-chart-dots-3" style={{ fontSize:16,color:"#0d0d0d" }} />
+              <div style={{ width:28,height:28,background:ACCENT,borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>
+                <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="0.5" width="14" height="3" rx="1" fill="#0d0d0d"/>
+                  <rect x="1" y="5.5" width="10" height="3" rx="1" fill="#0d0d0d"/>
+                  <rect x="1" y="10.5" width="6" height="3" rx="1" fill="#0d0d0d"/>
+                </svg>
               </div>
               <div>
                 <div style={{ fontFamily:"IBM Plex Mono",fontSize:15,fontWeight:500,color:"#e8e8e0",letterSpacing:".04em" }}>ADSTACK</div>
@@ -1641,8 +1650,12 @@ export default function App() {
         {isMobile && (
           <div className="mobile-header" style={{ borderBottom:"1px solid #1a1a1a",padding:"12px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",background:"#0a0a0a",flexShrink:0 }}>
             <div style={{ display:"flex",alignItems:"center",gap:10 }}>
-              <div style={{ width:26,height:26,background:ACCENT,borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center" }}>
-                <i className="ti ti-chart-dots-3" style={{ fontSize:14,color:"#0d0d0d" }} />
+              <div style={{ width:26,height:26,background:ACCENT,borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>
+                <svg width="14" height="12" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="0.5" width="14" height="3" rx="1" fill="#0d0d0d"/>
+                  <rect x="1" y="5.5" width="10" height="3" rx="1" fill="#0d0d0d"/>
+                  <rect x="1" y="10.5" width="6" height="3" rx="1" fill="#0d0d0d"/>
+                </svg>
               </div>
               <div style={{ fontFamily:"IBM Plex Mono",fontSize:13,fontWeight:500,color:"#e8e8e0",letterSpacing:".04em" }}>ADSTACK</div>
             </div>
