@@ -1605,6 +1605,18 @@ export default function App() {
   const handleBack   = ()  => setPage(null);
 
   const activeMeta = TOOLS.find(t=>t.id===activeTool);
+  const toolMeta = TOOL_META[activeTool] || {};
+
+  // URL + document title - update whenever page or active tool changes
+  const currentPath = page
+    ? (page === "blog" ? "/blog" : page === "about" ? "/about" : page === "contact" ? "/contact" : page === "privacy" ? "/privacy" : page === "terms" ? "/terms" : "/" + page)
+    : (toolMeta.path || "/");
+  const currentTitle = page
+    ? (page.charAt(0).toUpperCase() + page.slice(1) + " | ADSTACK")
+    : (toolMeta.title || "ADSTACK - Paid Media Toolkit");
+  const currentDesc = page ? "" : (toolMeta.desc || "");
+  usePushState(currentPath);
+  useDocumentMeta(currentTitle, currentDesc);
 
   const toolComponents = {
     analyzer:  <CreativeAnalyzer />,
