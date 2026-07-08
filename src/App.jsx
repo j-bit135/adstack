@@ -1601,20 +1601,22 @@ export default function App() {
 
   const handleSave   = conv => setSaved(p=>[...p,conv]);
   const handleDelete = idx  => setSaved(p=>p.filter((_,i)=>i!==idx));
-  const handleNav    = p   => {
-    setPage(p);
-    setDrawerOpen(false);
-    const infoPath = { blog:"/blog", about:"/about", contact:"/contact", privacy:"/privacy", terms:"/terms" };
-    window.history.pushState({}, "", infoPath[p] || "/" + p);
-  };
-  const handleBack   = ()  => {
-    setPage(null);
-    const meta = TOOL_META[activeTool];
-    window.history.pushState({}, "", meta ? meta.path : "/");
-  };
+  const handleNav    = p => { setPage(p); setDrawerOpen(false); };
+  const handleBack   = () => setPage(null);
 
   const activeMeta = TOOLS.find(t=>t.id===activeTool);
   const toolMeta = TOOL_META[activeTool] || {};
+
+  // Update URL and title on navigation
+  useEffect(() => {
+    const infoPath = { blog:"/blog", about:"/about", contact:"/contact", privacy:"/privacy", terms:"/terms" };
+    const path = page ? (infoPath[page] || "/" + page) : (TOOL_META[activeTool]?.path || "/");
+    const title = page
+      ? (page.charAt(0).toUpperCase() + page.slice(1) + " | ADSTACK")
+      : (TOOL_META[activeTool]?.title || "ADSTACK");
+    window.history.pushState({}, "", path);
+    document.title = title;
+  }, [page, activeTool]);
 
   const toolComponents = {
     analyzer:  <CreativeAnalyzer />,
@@ -1682,7 +1684,7 @@ export default function App() {
           <div className="mobile-drawer">
             <div className="mobile-drawer-overlay" onClick={()=>setDrawerOpen(false)} />
             <div className="mobile-drawer-panel">
-              <SidebarContents activeTool={activeTool} setActiveTool={setActiveTool} savedCount={savedConventions.length} onClose={()=>setDrawerOpen(false)} onToolSelect={(tid)=>{ setPage(null); const m=TOOL_META[tid]; window.history.pushState({},"",m?m.path:"/"); }} />
+              <SidebarContents activeTool={activeTool} setActiveTool={setActiveTool} savedCount={savedConventions.length} onClose={()=>setDrawerOpen(false)} onToolSelect={(tid)=>{ setPage(null); setActiveTool(tid); }} />
             </div>
           </div>
         )}
@@ -1690,7 +1692,7 @@ export default function App() {
         <div style={{ display:"flex", flex:1, overflow:"hidden" }}>
           {!isMobile && (
             <div className="sidebar">
-              <SidebarContents activeTool={activeTool} setActiveTool={setActiveTool} savedCount={savedConventions.length} onClose={null} onToolSelect={(tid)=>{ setPage(null); const m=TOOL_META[tid]; window.history.pushState({},"",m?m.path:"/"); }} />
+              <SidebarContents activeTool={activeTool} setActiveTool={setActiveTool} savedCount={savedConventions.length} onClose={null} onToolSelect={(tid)=>{ setPage(null); setActiveTool(tid); }} />
             </div>
           )}
 
